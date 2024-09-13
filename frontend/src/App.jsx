@@ -2,8 +2,11 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
+import Assets from './pages/Assets'
+import Assignments from './pages/Assignments'
 import ProtectedRoute from './components/ProtectedRoutes';
-import SideBar from './components/SideBar';
+import SideBar from './components/sidebar';
+
 
 function Logout() {
   localStorage.clear();
@@ -14,12 +17,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
         <Route path="/login" element={<Login />} />
 
-        {/* Protected Routes */}
-        <Route path="/" element={<ProtectedRoute><SideBar /><Home /></ProtectedRoute>} />
-        <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
+        <Route path="/" element={<ProtectedRoute><SideBar /></ProtectedRoute>}>
+          <Route index element={<Home />} />
+          <Route path="assets" element={<Assets />} />
+          <Route path="assignments" element={<Assignments />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
 
         {/* Logout Route */}
         <Route path="/logout" element={<Logout />} />
