@@ -19,7 +19,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        <Route path="/" element={<ProtectedRoute><SideBar /></ProtectedRoute>}>
+        <Route path="saf-it-assets-2-1.onrender.com/" element={<ProtectedRoute><SideBar /></ProtectedRoute>}>
           <Route index element={<Home />} />
           <Route path="assets" element={<Assets />} />
           <Route path="assignments" element={<Assignments />} />
