@@ -2,8 +2,11 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
-import Assets from './pages/Assets'
-import Assignments from './pages/Assignments'
+import AssetList from './pages/Asset/AssetList'
+import AssignmentList from './pages/Assignment/AssignmentList'
+import RequestList from './pages/Request/RequestList';
+import { UserList, CreateUser } from './pages/User';
+import Categories from './pages/Categories';
 import ProtectedRoute from './components/ProtectedRoutes';
 import SideBar from './components/sidebar';
 
@@ -21,8 +24,16 @@ function App() {
 
         <Route path="/" element={<ProtectedRoute><SideBar /></ProtectedRoute>}>
           <Route index element={<Home />} />
-          <Route path="assets" element={<Assets />} />
-          <Route path="assignments" element={<Assignments />} />
+          <Route path="assets" element={<AssetList />} />
+          <Route path="assignments" element={<AssetList />} />
+          <Route path="requests" element={<RequestList />} />
+          <Route path="categories" element={<Categories />} />
+
+          //#region user Routes
+          <Route path="users" element={<UserList />} />
+          <Route path="create-user" element={<CreateUser />} />
+
+          //#endregion
           <Route path="*" element={<NotFound />} />
         </Route>
 

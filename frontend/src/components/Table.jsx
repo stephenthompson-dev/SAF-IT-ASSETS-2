@@ -1,6 +1,27 @@
-import { PlusIcon, EyeIcon, TrashIcon } from "@heroicons/react/24/outline"; // Import the necessary icons
+import { useState } from "react";
+import { PlusIcon, EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
+import Drawer from "./drawer";
 
-const Table = ({ columns, data, onCreate, onDetails, onDelete }) => {
+const Table = ({ columns, data, onCreate, onDelete, onUpdate }) => {
+  const [isDrawerOpen, setDrawerOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
+
+  const handleDetails = (row) => {
+    setSelectedRow(row);
+    setDrawerOpen(true); // Open the drawer
+  };
+
+  const handleCloseDrawer = () => {
+    setDrawerOpen(false);
+    setSelectedRow(null); // Clear selected row on close
+  };
+
+  const handleSave = (updatedRow) => {
+    // Update the row in the data array (you could call an API to save the data)
+    onUpdate(updatedRow); // Call onUpdate to handle saving the updated row
+    setDrawerOpen(false);
+  };
+
   return (
     <div className="overflow-x-auto">
       <div className="flex justify-between items-center mb-4">
@@ -42,7 +63,7 @@ const Table = ({ columns, data, onCreate, onDetails, onDelete }) => {
               ))}
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-4">
                 <button
-                  onClick={() => onDetails(row)}
+                  onClick={() => handleDetails(row)}
                   className="text-blue-600 hover:text-blue-900"
                 >
                   <EyeIcon className="h-5 w-5" /> {/* Icon for Details */}
@@ -58,6 +79,14 @@ const Table = ({ columns, data, onCreate, onDetails, onDelete }) => {
           ))}
         </tbody>
       </table>
+
+      {/* Drawer for showing and editing details */}
+      <Drawer
+        isOpen={isDrawerOpen}
+        onClose={handleCloseDrawer}
+        content={selectedRow} // Pass selected row data
+        onSave={handleSave} // Handle save
+      />
     </div>
   );
 };

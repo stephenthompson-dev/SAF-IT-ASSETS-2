@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
-import { HomeIcon, UserGroupIcon, CpuChipIcon, BriefcaseIcon, ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/outline";
+import { HomeIcon, UserGroupIcon, CpuChipIcon, BriefcaseIcon, ArrowLeftStartOnRectangleIcon,MagnifyingGlassPlusIcon } from "@heroicons/react/24/outline";
 import { Bars3Icon } from "@heroicons/react/24/solid";
 
 const SideBar = () => {
@@ -47,6 +47,12 @@ const SideBar = () => {
                     text="Assignments"
                     isExpanded={isExpanded}
                     path="/assignments"
+                />
+                <SideBarIcon
+                    icon={<MagnifyingGlassPlusIcon className="h-8 w-8" />}
+                    text="Requests"
+                    isExpanded={isExpanded}
+                    path="/requests"
                 />
 
                 {/* Logout Button at the Bottom */}
