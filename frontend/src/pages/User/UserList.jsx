@@ -42,6 +42,20 @@ const Users = () => {
     navigate("/create-user"); // Navigate to the create user form
   };
 
+  const handleUpdate = async (updatedUser) => {
+    try {
+      const response = await api.put(`/api/user/${updatedUser.id}/`, updatedUser); // Update user on the server
+      console.log("Updated user:", response.data);
+
+      // Update the local user data
+      setUsers((prevUsers) => 
+        prevUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+      );
+    } catch (error) {
+      console.error("Failed to update user:", error);
+    }
+  };
+
   const handleDetails = (row) => {
     console.log("View details for:", row);
   };
@@ -66,6 +80,7 @@ const Users = () => {
         onCreate={handleCreate}
         onDetails={handleDetails}
         onDelete={handleDelete}
+        onUpdate={handleUpdate}
       />
     </div>
   );
