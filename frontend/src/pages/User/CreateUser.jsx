@@ -32,14 +32,12 @@ const CreateUser = () => {
     password2: Yup.string()
       .required("Please confirm your password")
       .oneOf([Yup.ref("password1")], "Passwords must match"),
-    isAdmin: Yup.boolean(),
+    is_superuser: Yup.boolean(),
   });
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      await api.post("endpoint", {
-        params: values,
-      });
+      await api.post("/users/create-user/", values); // Send values directly
     } catch (error) {
       console.error(error);
     } finally {
@@ -57,7 +55,7 @@ const CreateUser = () => {
         email: "",
         password1: "",
         password2: "",
-        isAdmin: false,
+        is_superuser: false,
       }}
       onSubmit={handleSubmit}
     >
@@ -154,8 +152,8 @@ const CreateUser = () => {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="isAdmin" className="inline-flex items-center text-sm font-medium text-slate-200">
-              <Field id="isAdmin" name="isAdmin" type="checkbox" className="h-4 w-4 text-indigo-600" />
+            <label htmlFor="is_superuser" className="inline-flex items-center text-sm font-medium text-slate-200">
+              <Field id="is_superuser" name="is_superuser" type="checkbox" className="h-4 w-4 text-indigo-600" />
               <span className="ml-2">Admin</span>
             </label>
           </div>
