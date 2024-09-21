@@ -1,13 +1,12 @@
 from django.contrib.auth.models import User
 from rest_framework import viewsets
-from .serializers import UserSerializer, AssetSerializer, CategorySerializer, AssignmentSerializer, RequestSerializer
+from ..serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .models import Asset, Category, Request, Assignment
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_create(self, serializer):
         user = serializer.save()
@@ -19,4 +18,3 @@ class UserViewSet(viewsets.ModelViewSet):
         if is_staff:
             user.is_staff = True
         user.save()
-        

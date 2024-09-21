@@ -24,7 +24,7 @@ const Users = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await api.get("/api/user/");
+        const response = await api.get("/users/");
         console.log(response.data);
         setUsers(response.data); // Set the fetched user data
         setLoading(false); // Set loading to false after fetching

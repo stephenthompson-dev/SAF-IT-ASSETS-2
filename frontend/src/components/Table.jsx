@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PlusIcon, EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
-import Drawer from "./drawer";
+
 
 const Table = ({ columns, data, onCreate, onDelete, onUpdate }) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -79,14 +79,6 @@ const Table = ({ columns, data, onCreate, onDelete, onUpdate }) => {
           ))}
         </tbody>
       </table>
-
-      {/* Drawer for showing and editing details */}
-      <Drawer
-        isOpen={isDrawerOpen}
-        onClose={handleCloseDrawer}
-        content={selectedRow} // Pass selected row data
-        onSave={handleSave} // Handle save
-      />
     </div>
   );
 };

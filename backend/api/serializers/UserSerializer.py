@@ -12,7 +12,15 @@ class UserSerializer(serializers.ModelSerializer):
             "email": {"required": True},
             'is_superuser': {'required': False}
         }
-
+        
+    def validate(self, data):
+        if User.objects.filter(username=data["username"]).exists():
+            raise serializers.ValidationError("Username alaredy exists")
+        
+        if User.objects.filter(email=data["email"]).exists():
+            raise serializers.ValidationError("email already exists")
+    
+    
     def create(self, validated_data):
         # Use create_user to hash password and create user
         user = User.objects.create_user(**validated_data)
