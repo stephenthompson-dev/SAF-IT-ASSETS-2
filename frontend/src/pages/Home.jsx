@@ -1,5 +1,5 @@
 import React from 'react';
-import Table from '../components/Table'; // Adjust the import path accordingly
+import Table from '../components/UI/Table'; // Adjust the import path accordingly
 
 const columns = [
   {

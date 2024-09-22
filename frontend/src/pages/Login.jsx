@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../constants';
-import LoadingIndicator from '../components/LoadingIndicator'; // Make sure to create this component
+import LoadingIndicator from '../components/UI/LoadingIndicator'; // Make sure to create this component
 
 const Login = () => {
   const [username, setUsername] = useState('');

@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import {useNavigate} from "react-router-dom";
-import Table from "../../components/Table"; // Import your Table component
 import api from '../../api';
-
+import Table from '../../components/UI/Table'
 
 
 const Users = () => {

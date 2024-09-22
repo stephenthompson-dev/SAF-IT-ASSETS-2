@@ -1,6 +1,7 @@
 import * as Yup from "yup";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import api from "../../api";
+import CustomField from "../../components/UI/CustomField";
 
 const CreateUser = () => {
   const createUserSchema = Yup.object().shape({
@@ -35,140 +36,67 @@ const CreateUser = () => {
     is_superuser: Yup.boolean(),
   });
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
-      await api.post("/users/create-user/", values); // Send values directly
+      const response = await api.post('/users/create-user/', values);
+      console.log('User created successfully', response);
+      // Perform any action after a successful submission
     } catch (error) {
-      console.error(error);
+      if (error.response && error.response.data) {
+        const backendErrors = error.response.data;
+
+        // Set the errors in Formik to display them on the form fields
+        setErrors(backendErrors);
+      } else {
+        console.error('An unexpected error occurred:', error);
+      }
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <Formik
-      validationSchema={createUserSchema}
-      initialValues={{
-        username: "",
-        first_name: "",
-        last_name: "",
-        email: "",
-        password1: "",
-        password2: "",
-        is_superuser: false,
-      }}
-      onSubmit={handleSubmit}
-    >
-      {({ isSubmitting, errors, touched }) => (
-        <Form className="max-w-lg mx-auto p-6 bg-slate-800 text-white rounded-lg shadow-lg">
-          <div className="mb-4">
-            <label htmlFor="username" className="block text-sm font-medium text-slate-200">
-              Username
-            </label>
-            <Field
-              className={`mt-1 block w-full px-3 py-2 bg-slate-700 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.username && touched.username ? "border-red-500" : "border-slate-600"
-              }`}
-              id="username"
-              name="username"
-              type="text"
-            />
-            <ErrorMessage name="username" component="div" className="text-red-500 text-sm mt-1" />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-slate-200">
-              Email
-            </label>
-            <Field
-              className={`mt-1 block w-full px-3 py-2 bg-slate-700 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.email && touched.email ? "border-red-500" : "border-slate-600"
-              }`}
-              id="email"
-              name="email"
-              type="email"
-            />
-            <ErrorMessage name="email" component="div" className="text-red-500 text-sm mt-1" />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="first_name" className="block text-sm font-medium text-slate-200">
-              First Name
-            </label>
-            <Field
-              className={`mt-1 block w-full px-3 py-2 bg-slate-700 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.first_name && touched.first_name ? "border-red-500" : "border-slate-600"
-              }`}
-              id="first_name"
-              name="first_name"
-              type="text"
-            />
-            <ErrorMessage name="first_name" component="div" className="text-red-500 text-sm mt-1" />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="last_name" className="block text-sm font-medium text-slate-200">
-              Last Name
-            </label>
-            <Field
-              className={`mt-1 block w-full px-3 py-2 bg-slate-700 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.last_name && touched.last_name ? "border-red-500" : "border-slate-600"
-              }`}
-              id="last_name"
-              name="last_name"
-              type="text"
-            />
-            <ErrorMessage name="last_name" component="div" className="text-red-500 text-sm mt-1" />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="password1" className="block text-sm font-medium text-slate-200">
-              Password
-            </label>
-            <Field
-              className={`mt-1 block w-full px-3 py-2 bg-slate-700 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.password1 && touched.password1 ? "border-red-500" : "border-slate-600"
-              }`}
-              id="password1"
-              name="password1"
-              type="password"
-            />
-            <ErrorMessage name="password1" component="div" className="text-red-500 text-sm mt-1" />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="password2" className="block text-sm font-medium text-slate-200">
-              Confirm Password
-            </label>
-            <Field
-              className={`mt-1 block w-full px-3 py-2 bg-slate-700 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 ${
-                errors.password2 && touched.password2 ? "border-red-500" : "border-slate-600"
-              }`}
-              id="password2"
-              name="password2"
-              type="password"
-            />
-            <ErrorMessage name="password2" component="div" className="text-red-500 text-sm mt-1" />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="is_superuser" className="inline-flex items-center text-sm font-medium text-slate-200">
-              <Field id="is_superuser" name="is_superuser" type="checkbox" className="h-4 w-4 text-indigo-600" />
-              <span className="ml-2">Admin</span>
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md"
-          >
-            {isSubmitting ? "Submitting..." : "Submit"}
-          </button>
-        </Form>
-      )}
-    </Formik>
+    <div className="flex items-center justify-center min-h-screen overflow-hidden">
+      <Formik
+        validationSchema={createUserSchema}
+        initialValues={{
+          username: "",
+          first_name: "",
+          last_name: "",
+          email: "",
+          password1: "",
+          password2: "",
+          is_superuser: false,
+        }}
+        onSubmit={handleSubmit}
+      >
+        {({ isSubmitting, errors, touched }) => (
+          <Form className="w-full max-w-md p-8 bg-slate-600 text-white rounded-lg shadow-lg">
+            <CustomField fieldName="username" type="text" errors={errors} touched={touched} text="Username" />
+            <CustomField fieldName="email" type="email" errors={errors} touched={touched} text="Email" />
+            <CustomField fieldName="first_name" type="text" errors={errors} touched={touched} text="First Name" />
+            <CustomField fieldName="last_name" type="text" errors={errors} touched={touched} text="Last Name" />
+            <CustomField fieldName="password1" type="password" errors={errors} touched={touched} text="Password" />
+            <CustomField fieldName="password2" type="password" errors={errors} touched={touched} text="Confirm Password" />
+            <div className="mb-4">
+              <label htmlFor="is_superuser" className="inline-flex items-center text-sm font-medium text-slate-200">
+                <Field id="is_superuser" name="is_superuser" type="checkbox" className="h-4 w-4 text-indigo-600 bg-slate-500 hover:bg-indigo-400" />
+                <span className="ml-2">Admin</span>
+              </label>
+            </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md"
+            >
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </button>
+          </Form>
+        )}
+      </Formik>
+    </div>
   );
+
 };
 
 export default CreateUser;

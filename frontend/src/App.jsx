@@ -7,8 +7,8 @@ import AssignmentList from './pages/Assignment/AssignmentList'
 import RequestList from './pages/Request/RequestList';
 import { UserList, CreateUser } from './pages/User';
 import Categories from './pages/Categories';
-import ProtectedRoute from './components/ProtectedRoutes';
-import SideBar from './components/sidebar';
+import ProtectedRoute from './components/UI/ProtectedRoutes';
+import SideBar from './components/UI/sidebar';
 
 
 function Logout() {
