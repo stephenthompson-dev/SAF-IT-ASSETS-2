@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import {useNavigate} from "react-router-dom";
 import api from '../../api';
-import Table from '../../components/UI/Table'
+import Table from '../../components/UI/Table';
+import LoadingIndicator from '../../components/UI/LoadingIndicator';
 
 
 const Users = () => {
@@ -64,7 +65,7 @@ const Users = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>; // Show loading state
+    return <LoadingIndicator/>; // Show loading state
   }
 
   if (error) {
@@ -74,6 +75,7 @@ const Users = () => {
   return (
     <div>
       <Table
+        title="Users"
         columns={columns}
         data={users}
         onCreate={handleCreate}

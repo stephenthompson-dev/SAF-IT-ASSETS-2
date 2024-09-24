@@ -13,7 +13,6 @@ class Category(models.Model):
 class Asset(models.Model):
     asset_name = models.CharField(max_length=100)
     purchase_date = models.DateField()
-    warrenty_end = models.DateField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="assets")
 
     def __str__(self):

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
-import { HomeIcon, UserGroupIcon, CpuChipIcon, BriefcaseIcon, ArrowLeftStartOnRectangleIcon,MagnifyingGlassPlusIcon } from "@heroicons/react/24/outline";
+import { TagIcon, HomeIcon, UserGroupIcon, CpuChipIcon, BriefcaseIcon, ArrowLeftStartOnRectangleIcon, MagnifyingGlassPlusIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { Bars3Icon } from "@heroicons/react/24/solid";
 
 const SideBar = () => {
@@ -54,7 +54,12 @@ const SideBar = () => {
                     isExpanded={isExpanded}
                     path="/requests"
                 />
-
+                <SideBarIcon
+                    icon={<TagIcon className="h-8 w-8" />}
+                    text="Categories"
+                    isExpanded={isExpanded}
+                    path="/categories"
+                />
                 {/* Logout Button at the Bottom */}
                 <div className="mt-auto mb-4">
                     <SideBarIcon

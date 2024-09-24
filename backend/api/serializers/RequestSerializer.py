@@ -9,3 +9,4 @@ class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
         fields = ['id', 'user', 'asset', 'for_date', 'end_date', 'further_notice', 'approved', 'approved_date', 'approved_by']
+        

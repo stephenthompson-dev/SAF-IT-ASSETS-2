@@ -1,16 +1,14 @@
 from rest_framework import serializers
 from ..models import Asset, Category
-from .CategorySerializer import CategorySerializer
 
 class AssetSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()  # To display category details in the asset
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())  # Accepts category ID
 
     class Meta:
         model = Asset
-        fields = ['id', 'asset_name', 'purchase_date', 'warrenty_end', 'category']
+        fields = ['id', 'asset_name', 'purchase_date', 'category']  # Keep 'category' in fields
 
     def create(self, validated_data):
-        category_data = validated_data.pop('category')
-        category, created = Category.objects.get_or_create(**category_data)
-        asset = Asset.objects.create(category=category, **validated_data)
+        # Directly create asset with validated data including category as ID
+        asset = Asset.objects.create(**validated_data)  # Create asset with validated data
         return asset

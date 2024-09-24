@@ -4,57 +4,43 @@ import api from '../../api';
 import Table from '../../components/UI/Table';
 import LoadingIndicator from '../../components/UI/LoadingIndicator';
 
-const Assets = () => {
+
+const Categories = () => {
     const [assets, setAssets] = useState([]);
-    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true); 
     const [error, setError] = useState(null); 
     const navigate = useNavigate();
 
     const columns = [
         { Header: "ID", accessor: "id" },
-        { Header: "Asset Name", accessor: "asset_name" },
-        { Header: "Purchase Date", accessor: "purchase_date" },
-        { Header: "Category", accessor: "category_name" }, // Will use this after mapping
+        { Header: "Category", accessor: "category_name" },
     ];
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [assetsResponse, categoriesResponse] = await Promise.all([
-                    api.get("/assets/"),
-                    api.get("/categories/"),
-                ]);
-                
-                const fetchedAssets = assetsResponse.data.map(asset => {
-                    // Find the category name based on the category_id
-                    const category = categoriesResponse.data.find(cat => cat.id === asset.category);
-                    return {
-                        ...asset,
-                        category_name: category ? category.category_name : "Unknown", // Add category name to asset
-                    };
-                });
-
-                setAssets(fetchedAssets);
-                setCategories(categoriesResponse.data); 
+                const response = await api.get("/categories/");
+                console.log(response.data);
+                setAssets(response.data); 
+                setLoading(false); 
             } catch (err) {
                 setError(err.message);
-            } finally {
-                setLoading(false); 
+                setLoading(false);
             }
         };
 
-        fetchData();
+        fetchData(); // Call the fetch function
     }, []);
 
     const handleCreate = () => {
-        navigate("/create-asset", { state: { categories } });
+        navigate("/create-category");
     };
 
     const handleUpdate = async (updatedAsset) => {
         try {
-            const response = await api.put(`/api/assets/${updatedAsset.id}/`, updatedAsset); 
+            const response = await api.put(`/api/category/${updatedAsset.id}/`, updatedAsset); 
             console.log("Updated asset:", response.data);
+            
             setAssets((prevAssets) =>
                 prevAssets.map((asset) => (asset.id === updatedAsset.id ? updatedAsset : asset))
             );
@@ -72,17 +58,17 @@ const Assets = () => {
     };
 
     if (loading) {
-        return <LoadingIndicator />;
+        return <LoadingIndicator />; // Show loading state
     }
 
     if (error) {
-        return <div>Error: {error}</div>;
+        return <div>Error: {error}</div>; // Show error message
     }
 
     return (
         <div>
             <Table
-                title="Assets"
+                title="Categories"
                 columns={columns}
                 data={assets}
                 onCreate={handleCreate}
@@ -93,5 +79,4 @@ const Assets = () => {
         </div>
     );
 };
-
-export default Assets;
+export default Categories;
