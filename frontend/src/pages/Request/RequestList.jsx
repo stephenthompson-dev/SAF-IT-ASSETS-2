@@ -41,7 +41,7 @@ const Requests = () => {
 
   // Define event handlers for table actions
   const handleCreate = () => {
-    navigate("/create-assignments"); // Navigate to the create user form
+    navigate("/create-request"); // Navigate to the create user form
   };
 
   const handleUpdate = async (updatedUser) => {

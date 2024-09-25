@@ -17,7 +17,7 @@ const CreateAssetForm = () => {
   const [fields, setFields] = useState([
     { name: "asset_name", type: "text", label: "Asset Name" },
     { name: "purchase_date", type: "date", label: "Purchase Date" },
-    { name: "category", type: "select", label: "Category", options: [] },
+    { name: "category", type: "select", label: "Category", options: [], placeholder:"Select a category" },
   ]);
 
   // Handle form submission

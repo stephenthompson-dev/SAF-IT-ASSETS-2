@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
-import { AssetList, CreateAsset, UserList, CreateUser, Categories, CreateCategory, Assginments, Requests} from './pages/mainExport';
+import { AssetList, CreateAsset, UserList, CreateUser, Categories, CreateCategory, Assginments, Requests, CreateRequest} from './pages/mainExport';
 import ProtectedRoute from './components/UI/ProtectedRoutes';
 import SideBar from './components/UI/sidebar';
 
@@ -27,6 +27,7 @@ function App() {
 
 
           <Route path="requests" element={<Requests />} />
+          <Route path="create-request" element={<CreateRequest />} />
 
           <Route path="categories" element={<Categories />} />
           <Route path="create-category" element={<CreateCategory />} />

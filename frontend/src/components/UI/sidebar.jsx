@@ -73,9 +73,9 @@ const SideBar = () => {
 
             {/* Main Content */}
             <div
-                className={`flex-1 ml-16 transition-all duration-300 ${isExpanded ? "ml-48" : "ml-16"}`}
+                className={`MAX-W flex-1 ml-16 transition-all duration-300 ${isExpanded ? "ml-48" : "ml-16"}`}
             >
-                <div className="p-4">
+                <div className="px-20 py-10">
                     <Outlet />
                 </div>
             </div>

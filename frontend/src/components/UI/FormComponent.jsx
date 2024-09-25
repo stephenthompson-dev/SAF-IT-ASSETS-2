@@ -1,13 +1,10 @@
 import { Formik, Form, Field } from "formik";
 import CustomField from "./CustomField"; // Assuming your custom input fields are here
+import SearchableSelect from "./SearchableSelect";
 
 const FormComponent = ({ schema, onSubmit, fields }) => {
-  // Create initial values as empty strings or other defaults
   const initialValues = fields.reduce((acc, field) => {
-    acc[field.name] = ""; // Assign empty string for each field, except for checkboxes
-    if (field.type === "checkbox") {
-      acc[field.name] = false; // Default value for checkboxes
-    }
+    acc[field.name] = field.type === "checkbox" ? false : ""; // Default for checkboxes
     return acc;
   }, {});
 
@@ -18,10 +15,15 @@ const FormComponent = ({ schema, onSubmit, fields }) => {
         validationSchema={schema}
         onSubmit={onSubmit}
       >
-        {({ isSubmitting, errors, touched }) => (
+        {({ isSubmitting, errors, touched, setFieldValue, values }) => (
           <Form className="w-full max-w-md p-8 bg-slate-600 text-white rounded-lg shadow-lg">
             {fields.map((field, index) => (
-              <div key={index} className={`mb-4 ${field.type === 'checkbox' ? 'flex items-center' : ''}`}>
+              <div
+                key={index}
+                className={`mb-4 ${
+                  field.type === "checkbox" ? "flex items-center" : ""
+                }`}
+              >
                 {field.type === "checkbox" ? (
                   <label className="inline-flex items-center text-sm font-medium text-slate-200">
                     <Field
@@ -32,20 +34,19 @@ const FormComponent = ({ schema, onSubmit, fields }) => {
                     <span className="ml-2">{field.label}</span>
                   </label>
                 ) : field.type === "select" ? (
-                  <label className="block text-sm font-medium text-slate-200">
+                  <label className="block text-sm text-slate-200">
                     {field.label}
-                    <Field
-                      name={field.name}
-                      as="select"
-                      className="mt-1 block w-full bg-slate-500 text-white border border-slate-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                    >
-                      <option value="" label="Select a category" />
-                      {field.options.map((option) => (
-                        <option key={option.value} value={option.value} label={option.label} />
-                      ))}
-                    </Field>
+                    <SearchableSelect
+                      options={field.options}
+                      placeholder={field.placeholder || "Select..."}
+                      onChange={(value) => setFieldValue(field.name, value)} // Send the selected ID
+                      value={values[field.name]} // Pass the current selected value
+                    />
+
                     {errors[field.name] && touched[field.name] && (
-                      <div className="text-red-500 text-xs mt-1">{errors[field.name]}</div>
+                      <div className="text-red-500 text-xs mt-1">
+                        {errors[field.name]}
+                      </div>
                     )}
                   </label>
                 ) : (
