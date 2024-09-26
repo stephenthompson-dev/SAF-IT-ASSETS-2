@@ -18,11 +18,11 @@ class RequestViewSet(viewsets.ModelViewSet):
         """
         # Create a dictionary with the request data and the current user
         data = request.data.copy()  # Use copy to avoid modifying the original request data
-        data['user'] = request.user.id  # Assign the current user's ID
+        data['user'] = request.user  # Assign the current user instance
 
         serializer = self.get_serializer(data=data)
         if serializer.is_valid():
-            request_instance = serializer.save()  # Save the instance with the user field set
+            request_instance = serializer.save(user=request.user)  # Pass the user when saving
             return Response({'status': 'request created'}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
