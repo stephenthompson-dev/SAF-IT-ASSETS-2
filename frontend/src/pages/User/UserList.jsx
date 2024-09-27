@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from '../../api';
 import Table from '../../components/UI/Table';
 import LoadingIndicator from '../../components/UI/LoadingIndicator';
-
 
 const Users = () => {
   const [users, setUsers] = useState([]); // State to store user data
@@ -25,12 +24,11 @@ const Users = () => {
     const fetchData = async () => {
       try {
         const response = await api.get("/users/");
-        console.log(response.data);
         setUsers(response.data); // Set the fetched user data
-        setLoading(false); // Set loading to false after fetching
       } catch (err) {
         setError(err.message); // Handle errors
-        setLoading(false);
+      } finally {
+        setLoading(false); // Set loading to false after fetching
       }
     };
 
@@ -42,30 +40,27 @@ const Users = () => {
     navigate("/create-user"); // Navigate to the create user form
   };
 
-  const handleUpdate = async (updatedUser) => {
-    try {
-      const response = await api.put(`/api/user/${updatedUser.id}/`, updatedUser); // Update user on the server
-      console.log("Updated user:", response.data);
+  const handleEdit = (selectedRow) => {
+    // Navigate to the edit page for the selected user
+    navigate(`/users/${selectedRow.id}/edit`);
+  };
 
-      // Update the local user data
-      setUsers((prevUsers) => 
-        prevUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
-      );
-    } catch (error) {
-      console.error("Failed to update user:", error);
+  const handleDelete = async (selectedRow) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      try {
+        await api.delete(`/users/${selectedRow.id}/`);
+        // Remove the deleted user from the state
+        setUsers(prevUsers => prevUsers.filter(user => user.id !== selectedRow.id));
+        console.log("User deleted successfully");
+      } catch (error) {
+        console.error("Failed to delete user:", error);
+        setError("Failed to delete user.");
+      }
     }
   };
 
-  const handleDetails = (row) => {
-    console.log("View details for:", row);
-  };
-
-  const handleDelete = (row) => {
-    console.log("Delete user:", row);
-  };
-
   if (loading) {
-    return <LoadingIndicator/>; // Show loading state
+    return <LoadingIndicator />; // Show loading state
   }
 
   if (error) {
@@ -79,9 +74,8 @@ const Users = () => {
         columns={columns}
         data={users}
         onCreate={handleCreate}
-        onDetails={handleDetails}
+        onEdit={handleEdit}
         onDelete={handleDelete}
-        onUpdate={handleUpdate}
       />
     </div>
   );

@@ -1,20 +1,19 @@
 import { useState, useEffect } from "react";
 import * as Yup from "yup";
 import FormComponent from "../../components/UI/FormComponent";
-import api from "../../api"; // Ensure your API utility is imported
+import api from "../../api"; 
 
 const CreateRequestForm = () => {
   const [requests, setRequests] = useState([]);
 
-  // Yup schema for form validation
   const createRequestSchema = Yup.object().shape({
     asset: Yup.string().required("Asset is required"),
-    for_date: Yup.string().required("For date is required").max(150),
-    end_date: Yup.string(),
-    further_notice: Yup.boolean().default = false,
+    for_date: Yup.date().required("For date is required"),
+    end_date: Yup.date(), 
+    further_notice: Yup.boolean().default = false, //If true should disable the end_date, need to work on this!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   });
 
-  // Initial field structure
+
   const [fields, setFields] = useState([
     { name: "asset", type: "select", label: "Asset", options: [], placeholder:"Select an asset" },
     { name: "for_date", type: "date", label: "For Date" },
@@ -22,12 +21,11 @@ const CreateRequestForm = () => {
     { name: "further_notice", type: "checkbox", label: "Until Further Notice. "},
   ]);
 
-  // Handle form submission
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
       const response = await api.post('/requests/create-request/', values);
       console.log('Request created successfully', response);
-      // Perform any action after a successful submission, e.g., redirect to a new page
+      // 
     } catch (error) {
       if (error.response && error.response.data) {
         const backendErrors = error.response.data;

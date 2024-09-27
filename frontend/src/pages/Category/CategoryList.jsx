@@ -5,17 +5,15 @@ import Table from '../../components/UI/Table';
 import LoadingIndicator from '../../components/UI/LoadingIndicator';
 import DisplayMessage from '../../components/UI/DisplayMessage';
 
-
 const Categories = () => {
-    const [assets, setAssets] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    //Message handling
+    // Message handling
     const location = useLocation();
     const [message, setMessage] = useState(null);
-
 
     const columns = [
         { Header: "ID", accessor: "id" },
@@ -26,11 +24,10 @@ const Categories = () => {
         const fetchData = async () => {
             try {
                 const response = await api.get("/categories/");
-                console.log(response.data);
-                setAssets(response.data);
-                setLoading(false);
+                setCategories(response.data);
             } catch (err) {
                 setError(err.message);
+            } finally {
                 setLoading(false);
             }
         };
@@ -38,44 +35,38 @@ const Categories = () => {
         fetchData();
     }, []);
 
-    //#region message display
+    // Message display
     useEffect(() => {
         if (location.state && location.state.message) {
             setMessage({ text: location.state.message, type: location.state.type });
         }
-    }, [location.state]); //Does checks on the current state to see if there is message to display
+    }, [location.state]);
 
     const handleMessageClose = () => {
         setMessage(null);
         // Optionally navigate to clear the state
-        navigate('/categories');
+        navigate('/categories', { replace: true });
     };
 
-    //#endregion
-    
     const handleCreate = () => {
         navigate("/create-category");
     };
 
-    const handleUpdate = async (updatedAsset) => {
-        try {
-            const response = await api.put(`/api/category/${updatedAsset.id}/`, updatedAsset);
-            console.log("Updated asset:", response.data);
+    const handleEdit = (selectedRow) => {
+        navigate(`/categories/${selectedRow.id}/edit`);
+    };
 
-            setAssets((prevAssets) =>
-                prevAssets.map((asset) => (asset.id === updatedAsset.id ? updatedAsset : asset))
-            );
-        } catch (error) {
-            console.error("Failed to update asset:", error);
+    const handleDelete = async (selectedRow) => {
+        if (window.confirm('Are you sure you want to delete this category?')) {
+            try {
+                await api.delete(`/categories/${selectedRow.id}/`);
+                setCategories(prevCategories => prevCategories.filter(category => category.id !== selectedRow.id));
+                console.log("Category deleted successfully");
+            } catch (error) {
+                console.error("Failed to delete category:", error);
+                setError("Failed to delete category.");
+            }
         }
-    };
-
-    const handleDetails = (row) => {
-        console.log("View details for:", row);
-    };
-
-    const handleDelete = (row) => {
-        console.log("Delete asset:", row);
     };
 
     if (loading) {
@@ -93,7 +84,7 @@ const Categories = () => {
               <DisplayMessage
                 message={message.text}
                 type={message.type}
-                onClose={() => handleMessageClose()} // Optionally remove message after display
+                onClose={handleMessageClose}
               />
             )}
           </div>
@@ -101,15 +92,14 @@ const Categories = () => {
             <Table
               title="Categories"
               columns={columns}
-              data={assets}
+              data={categories}
               onCreate={handleCreate}
-              onDetails={handleDetails}
+              onEdit={handleEdit}
               onDelete={handleDelete}
-              onUpdate={handleUpdate}
             />
           </div>
         </>
       );
-      
 };
+
 export default Categories;

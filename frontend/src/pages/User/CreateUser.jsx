@@ -7,19 +7,21 @@ const CreateUserForm = () => {
   const createUserSchema = Yup.object().shape({
     username: Yup.string()
       .required("Username is required")
-      .max(150)
-      .min(3),
+      .max(150, "username cannot be longer than 150 characters long")
+      .min(3, "username must be longer than 3 characters long"),
     first_name: Yup.string()
       .required("First name is required")
-      .max(150)
-      .min(3),
+      .max(150, "first name cannot be longer than 150 characters long")
+      .min(3, "firstname must be longer than 3 characters long"),
     last_name: Yup.string()
       .required("Last name is required")
-      .max(150)
-      .min(3),
+      .max(150, "Last name cannot be longer than 150 characters long")
+      .min(3, "Last name must be longer than 3 characters long"),
     email: Yup.string()
       .email("Invalid email address")
-      .required("Email is required"),
+      .required("Email is required")
+      .min(3, "Invalid Email, must be longer than 3 characters long")
+      .max(150, "Invalid Email, must be shorter than 150 characters"),
     password1: Yup.string()
       .required('Password is required')
       .min(8, 'Password must be at least 8 characters long')

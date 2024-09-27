@@ -11,7 +11,7 @@ const CreateCategoryForm = () => {
   const navigate = useNavigate();
   const location = useLocation(); 
   const createCategorySchema = Yup.object().shape({
-    category_name: Yup.string().required("Category Name is required").max(150),
+    category_name: Yup.string().required("Category Name is required").max(150, "Cannot be longer than 150 characters"),
   });
 
   const fields = [

@@ -8,8 +8,8 @@ const CreateAssetForm = () => {
 
   // Yup schema for form validation
   const createAssetSchema = Yup.object().shape({
-    asset_name: Yup.string().required("Asset name is required").max(150),
-    purchase_date: Yup.string().required("Purchase date is required").max(150),
+    asset_name: Yup.string().required("Asset name is required").max(150, "cannot be longer than 150 characters"),
+    purchase_date: Yup.date().required("Purchase date is required"),
     category: Yup.string().required("Category is required"),
   });
 

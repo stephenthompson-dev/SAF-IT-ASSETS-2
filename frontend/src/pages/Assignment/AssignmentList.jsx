@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from '../../api';
 import Table from '../../components/UI/Table';
 import LoadingIndicator from '../../components/UI/LoadingIndicator';
 
-
 const Assignments = () => {
-  const [assignments, setAssignments] = useState([]); // State to store user data
+  const [assignments, setAssignments] = useState([]); // State to store assignment data
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
   const navigate = useNavigate(); 
@@ -14,8 +13,8 @@ const Assignments = () => {
   // Define the columns for the table
   const columns = [
     { Header: "ID", accessor: "id" },
-    { Header: "User", accessor: "user.first_name" },
-    { Header: "Asset", accessor: "asset.asset_name" },
+    { Header: "User", accessor: "user_first_name" },
+    { Header: "Asset", accessor: "asset_name" },
     { Header: "Return Date", accessor: "return_date" },
   ];
 
@@ -23,12 +22,17 @@ const Assignments = () => {
     const fetchData = async () => {
       try {
         const response = await api.get("/assignments/");
-        console.log(response.data);
-        setAssignments(response.data); // Set the fetched user data
-        setLoading(false); // Set loading to false after fetching
+        // Map the data to flatten nested objects for the table
+        const fetchedAssignments = response.data.map((assignment) => ({
+          ...assignment,
+          user_first_name: assignment.user.first_name,
+          asset_name: assignment.asset.asset_name,
+        }));
+        setAssignments(fetchedAssignments); // Set the fetched assignment data
       } catch (err) {
         setError(err.message); // Handle errors
-        setLoading(false);
+      } finally {
+        setLoading(false); // Set loading to false after fetching
       }
     };
 
@@ -36,28 +40,26 @@ const Assignments = () => {
   }, []);
 
   const handleCreate = () => {
-    navigate("/create-assignments");
+    navigate("/create-assignment");
   };
 
-  const handleUpdate = async (updatedUser) => {
-    try {
-      const response = await api.put(`/api/user/${updatedUser.id}/`, updatedUser); // Update user on the server
-      console.log("Updated user:", response.data);
+  const handleEdit = (selectedRow) => {
+    // Navigate to the edit page for the selected assignment
+    navigate(`/assignments/${selectedRow.id}/edit`);
+  };
 
-      setUsers((prevUsers) => 
-        prevUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
-      );
-    } catch (error) {
-      console.error("Failed to update user:", error);
+  const handleDelete = async (selectedRow) => {
+    if (window.confirm('Are you sure you want to delete this assignment?')) {
+      try {
+        await api.delete(`/assignments/${selectedRow.id}/`);
+        // Remove the deleted assignment from the state
+        setAssignments(prevAssignments => prevAssignments.filter(assignment => assignment.id !== selectedRow.id));
+        console.log("Assignment deleted successfully");
+      } catch (error) {
+        console.error("Failed to delete assignment:", error);
+        setError("Failed to delete assignment.");
+      }
     }
-  };
-
-  const handleDetails = (row) => {
-    console.log("View details for:", row);
-  };
-
-  const handleDelete = (row) => {
-    console.log("Delete user:", row);
   };
 
   if (loading) {
@@ -71,13 +73,13 @@ const Assignments = () => {
   return (
     <div>
       <Table
-        title="Assignmetns"
+        title="Assignments"
         columns={columns}
         data={assignments}
         onCreate={handleCreate}
-        onDetails={handleDetails}
+        onEdit={handleEdit}
         onDelete={handleDelete}
-        onUpdate={handleUpdate}
+        showCreateButton={false} // Assuming you don't want a "Create" button for assignments
       />
     </div>
   );
