@@ -31,7 +31,7 @@ const RequestDetailsForm = () => {
       label: 'Until Further Notice',
     },
     { name: 'approved', type: 'checkbox', label: 'Approved' },
-    { name: 'approved_date', type: 'date', label: 'Approved Date', readOnly: true},
+    { name: 'approved_date', type: 'date', label: 'Approved Date', readOnly: true },
     {
       name: 'approved_by',
       type: 'text',
@@ -43,23 +43,21 @@ const RequestDetailsForm = () => {
   const [error, setError] = useState(null);
 
   // Validation schema
-// Validation schema
-const detailsSchema = Yup.object().shape({
-  asset: Yup.number().required('Asset is required'),
-  for_date: Yup.date().required('For date is required'),
-  end_date: Yup.date().when('further_notice', {
-    is: false,
-    then: (schema) =>
-      schema.required(
-        'End date is required when "Until Further Notice" is unchecked'
-      ),
-    otherwise: (schema) => schema.nullable(),
-  }),
-  further_notice: Yup.boolean(),
-  approved: Yup.boolean(),
-  approved_date: Yup.date().nullable(),
-});
-
+  const detailsSchema = Yup.object().shape({
+    asset: Yup.number().required('Asset is required'),
+    for_date: Yup.date().required('For date is required'),
+    end_date: Yup.date().when('further_notice', {
+      is: false,
+      then: (schema) =>
+        schema.required(
+          'End date is required when "Until Further Notice" is unchecked'
+        ),
+      otherwise: (schema) => schema.nullable(),
+    }),
+    further_notice: Yup.boolean(),
+    approved: Yup.boolean(),
+    approved_date: Yup.date().nullable(),
+  });
 
   // Fetch data
   useEffect(() => {
@@ -109,8 +107,10 @@ const detailsSchema = Yup.object().shape({
       // Remove read-only fields from submission
       delete submissionValues.user;
       delete submissionValues.approved_by;
+      delete submissionValues.approved_date; // Also remove approved_date if it's read-only
 
-      await api.put(`/requests/${requestId}/`, submissionValues);
+      // Corrected URL path to match DRF action's url_path
+      await api.put(`/requests/${requestId}/update-user/`, submissionValues);
       console.log('Request updated successfully');
       navigate('/requests');
     } catch (error) {

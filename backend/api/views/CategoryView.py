@@ -12,8 +12,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated]
 
-    
-    
     @action(detail=False, methods=['post'], url_path='create-category')
     def create_category_action(self, request):
         """

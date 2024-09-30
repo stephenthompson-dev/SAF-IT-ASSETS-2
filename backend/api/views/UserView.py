@@ -30,3 +30,11 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({'status': 'user created'}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    action(detail=True, methods=['POST'], url_path='update-user')
+    def update_user_action(self, request, pk):
+        """
+            Update action to update user
+        """
+        
+        return Response({'status': 'user updated'}, status=status.HTTP_200_OK)
