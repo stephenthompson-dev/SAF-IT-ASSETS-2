@@ -28,11 +28,9 @@ class RequestSerializer(serializers.ModelSerializer):
         return request_instance
 
     def update(self, instance, validated_data):
-        user = validated_data.get('user')
+
         approved_by = validated_data.get('approved_by')
-        print(user)
-        print(approved_by)
-        
-        if approved_by == user:
-            raise serializers.ValidationError({'approved_by': 'You cannot approve your own request'})
+        if approved_by is not None:
+            if approved_by == instance.user:
+                raise serializers.ValidationError({'approved_by': 'You cannot approve your own request'})
         return super().update(instance, validated_data)

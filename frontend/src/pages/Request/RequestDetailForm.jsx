@@ -103,12 +103,7 @@ const RequestDetailsForm = () => {
     try {
       // Prepare submission values
       const submissionValues = { ...values };
-  
-      // If approved is true, set approved_by to current user and approved_date to today's date
-      if (submissionValues.approved) {  // Replace with the actual current user ID or username
-        submissionValues.approved_date = new Date().toISOString();  // Set today's date
-      }
-  
+
       // Send the updated data to the API
       await api.put(`/requests/${requestId}/update-user/`, submissionValues);
       console.log('Request updated successfully');

@@ -41,17 +41,9 @@ class RequestViewSet(viewsets.ModelViewSet):
         if approved_update is not None:
             if approved_update:
                 print("hit")
-                data_copy = request.data.copy()
-                print(request.data.get('user'))
-                data_copy ['approved_by'] = request.user.id
-                data_copy ['approved_date'] = date.today()
-                serializer = RequestSerializer(dRequest, data=data_copy, partial=True)
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response({'status': 'Request Updated'},status=status.HTTP_200_OK)
-                else:
-                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+                request.data ['approved_by'] = request.user.id
+                request.data ['approved_date'] = date.today()
+                
         serializer = RequestSerializer(dRequest, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
