@@ -103,13 +103,13 @@ const RequestDetailsForm = () => {
     try {
       // Prepare submission values
       const submissionValues = { ...values };
-
-      // Remove read-only fields from submission
-      delete submissionValues.user;
-      delete submissionValues.approved_by;
-      delete submissionValues.approved_date; // Also remove approved_date if it's read-only
-
-      // Corrected URL path to match DRF action's url_path
+  
+      // If approved is true, set approved_by to current user and approved_date to today's date
+      if (submissionValues.approved) {  // Replace with the actual current user ID or username
+        submissionValues.approved_date = new Date().toISOString();  // Set today's date
+      }
+  
+      // Send the updated data to the API
       await api.put(`/requests/${requestId}/update-user/`, submissionValues);
       console.log('Request updated successfully');
       navigate('/requests');

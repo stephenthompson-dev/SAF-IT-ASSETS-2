@@ -40,8 +40,10 @@ class RequestViewSet(viewsets.ModelViewSet):
         approved_update = request.data.get('approved')
         if approved_update is not None:
             if approved_update:
+                print("hit")
                 data_copy = request.data.copy()
-                data_copy ['approved_by'] = request.user
+                print(request.data.get('user'))
+                data_copy ['approved_by'] = request.user.id
                 data_copy ['approved_date'] = date.today()
                 serializer = RequestSerializer(dRequest, data=data_copy, partial=True)
                 if serializer.is_valid():
