@@ -32,7 +32,7 @@ class RequestViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['put'], url_path='update-user')
     def update_request_action(self, request, pk=None):
         """
-        
+        Update request
         """
         dRequest = get_object_or_404(Request, pk=pk)
 
@@ -40,7 +40,6 @@ class RequestViewSet(viewsets.ModelViewSet):
         approved_update = request.data.get('approved')
         if approved_update is not None:
             if approved_update:
-                print("hit")
                 request.data ['approved_by'] = request.user.id
                 request.data ['approved_date'] = date.today()
                 
@@ -50,6 +49,7 @@ class RequestViewSet(viewsets.ModelViewSet):
             return Response({'status': 'Request Updated'},status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
         
 

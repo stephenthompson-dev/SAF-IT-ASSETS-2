@@ -10,6 +10,7 @@ class AssetViewSet(viewsets.ModelViewSet):
     queryset = Asset.objects.all()
     serializer_class = AssetSerializer
     permission_classes = [IsAuthenticated]
+    
 
     @action(detail=False, methods=['post'], url_path='create-asset')
     def create_asset_action(self, request):
