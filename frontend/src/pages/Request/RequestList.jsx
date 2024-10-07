@@ -1,102 +1,120 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import api from '../../api';
-import Table from '../../components/UI/Table';
-import LoadingIndicator from '../../components/UI/LoadingIndicator';
+// src/components/Requests/RequestList.jsx
 
-const Requests = () => {
-    const [requests, setRequests] = useState([]); // State to store request data
-    const [loading, setLoading] = useState(true); // Loading state
-    const [error, setError] = useState(null); // Error state
-    const navigate = useNavigate(); 
+import React, { useEffect, useState } from 'react';
+import Table from '../../components/UI/Table'; // Adjust the path if necessary
+import api from '../../api'; // Your Axios instance (session-based auth)
+import { useNavigate } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth'; // Custom hook for auth context
+import { toast } from 'react-toastify'; // For better notifications
 
-    // Define the columns for the table
-    const columns = [
-        { Header: "ID", accessor: "id" },
-        { Header: "User", accessor: "user" },
-        { Header: "Asset", accessor: "asset_name" },
-        { Header: "For Date", accessor: "for_date" },
-    ];
+const RequestList = () => {
+  const [requests, setRequests] = useState([]);
+  const { user } = useAuth(); // Access user info from AuthContext
+  const navigate = useNavigate();
+  const isAdmin = user?.is_staff;
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [requestsResponse, usersResponse, assetsResponse] = await Promise.all([
-                    api.get("/requests/"),
-                    api.get("/users/"),
-                    api.get("/assets/"),
-                ]);
-
-                // Create a mapping of users and assets for easy lookup
-                const usersMap = {};
-                usersResponse.data.forEach(user => {
-                    usersMap[user.id] = user.username;
-                });
-
-                const assetsMap = {};
-                assetsResponse.data.forEach(asset => {
-                    assetsMap[asset.id] = asset.asset_name;
-                });
-
-                // Map over the requests to add user and asset names
-                const fetchedRequests = requestsResponse.data.map(request => ({
-                    ...request,
-                    user_name: usersMap[request.user] || "Unknown",
-                    asset_name: assetsMap[request.asset] || "Unknown",
-                }));
-
-                setRequests(fetchedRequests); // Set the fetched requests with user and asset names
-            } catch (err) {
-                setError(err.message); // Handle errors
-            } finally {
-                setLoading(false); // Set loading to false
-            }
-        };
-
-        fetchData(); // Call the fetch function
-    }, []);
-
-    const handleCreate = () => {
-        navigate("/create-request"); // Navigate to the create request form
-    };
-
-    const handleEdit = (selectedRow) => {
-        navigate(`/requests/${selectedRow.id}/edit`);
-    };
-
-    const handleDelete = async (selectedRow) => {
-        if (window.confirm('Are you sure you want to delete this request?')) {
-            try {
-                await api.delete(`/requests/${selectedRow.id}/`);
-                setRequests(prevRequests => prevRequests.filter(request => request.id !== selectedRow.id));
-                console.log("Request deleted successfully");
-            } catch (error) {
-                console.error("Failed to delete request:", error);
-                setError("Failed to delete request.");
-            }
+  useEffect(() => {
+    // Fetch requests whenever isAdmin or user.id changes
+    const fetchRequests = async () => {
+      try {
+        const response = await api.get('/requests/');
+        let data = response.data;
+  
+        // If not admin, filter to only show user's own requests
+        if (!isAdmin && user) {
+          data = data.filter(request => request.user_id === user.id);
         }
+  
+        setRequests(data);
+      } catch (error) {
+        console.error('Error fetching requests:', error);
+        toast.error('Error fetching requests.');
+      }
     };
 
-    if (loading) {
-        return <LoadingIndicator />; // Show loading state
-    }
+    fetchRequests();
+  }, [isAdmin, user]);
 
-    if (error) {
-        return <div>Error: {error}</div>; // Show error message
-    }
+  // Define table columns
+  const columns = [
+    { Header: 'ID', accessor: 'id' },
+    { Header: 'User', accessor: 'user' },
+    { Header: 'Asset', accessor: 'asset' },
+    { Header: 'For Date', accessor: 'for_date' },
+    { Header: 'End Date', accessor: 'end_date' },
+    { Header: 'Further Notice', accessor: 'further_notice' },
+    { Header: 'Approved', accessor: 'approved' },
+    { Header: 'Approved Date', accessor: 'approved_date' },
+    { Header: 'Approved By', accessor: 'approved_by' },
+  ];
 
-    return (
-        <div>
-            <Table
-                title="Requests"
-                columns={columns}
-                data={requests}
-                onCreate={handleCreate}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
-        </div>
-    );
+  const handleCreate = () => {
+    navigate('/requests/create');
+  };
+
+  const handleEdit = (row) => {
+    navigate(`/requests/edit/${row.id}`);
+  };
+
+  const handleDelete = async (row) => {
+    if (window.confirm(`Are you sure you want to delete request ID ${row.id}?`)) {
+      try {
+        await api.delete(`/requests/${row.id}/`);
+        setRequests(prevRequests => prevRequests.filter(request => request.id !== row.id));
+        toast.success('Request deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting request:', error);
+        toast.error('Error deleting request.');
+      }
+    }
+  };
+
+  const handleApprove = async (row) => {
+    if (window.confirm('Are you sure you want to approve this request?')) {
+      const approved_by = user.id; // Assuming user object has an 'id' field
+
+      const updatedData = {
+        approved: true,
+        approved_date: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD
+        approved_by: approved_by,
+      };
+
+      try {
+        const response = await api.put(`/requests/${row.id}/`, updatedData);
+        setRequests(prevRequests =>
+          prevRequests.map(request =>
+            request.id === row.id ? response.data : request
+          )
+        );
+        toast.success('Request approved successfully!');
+      } catch (error) {
+        console.error('Error approving request:', error);
+        toast.error('Error approving request.');
+      }
+    }
+  };
+
+  // Prepare data for the table
+  const tableData = requests.map(request => ({
+    ...request,
+    further_notice: request.further_notice ? 'Yes' : 'No',
+    approved: request.approved ? 'Yes' : 'No',
+    approved_by: request.approved_by ? request.approved_by : 'N/A',
+  }));
+
+  return (
+    <div className="p-4">
+      <Table
+        columns={columns}
+        data={tableData}
+        onCreate={isAdmin ? handleCreate : null}
+        title="Requests"
+        showCreateButton={isAdmin}
+        onEdit={isAdmin ? handleEdit : null}
+        onDelete={isAdmin ? handleDelete : null}
+      />
+    </div>
+  );
 };
 
-export default Requests;
+export default RequestList;

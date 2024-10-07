@@ -1,56 +1,43 @@
-from django.contrib.auth.models import User
 from rest_framework import viewsets, status
-from ..serializers import RequestSerializer
-from rest_framework.permissions import IsAuthenticated
-from ..models import Request
-from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from datetime import date
+from ..models import Request, Assignment, Asset
+from ..serializers import RequestSerializer, AssignmentSerializer
+from ..permissions import IsAdminOrReadOnly
+from rest_framework.permissions import IsAuthenticated
+from django.utils import timezone
 
 class RequestViewSet(viewsets.ModelViewSet):
+    """
+    A viewset for viewing and editing request instances.
+    """
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
 
-    @action(detail=False, methods=['post'], url_path='create-request')
-    def create_request_action(self, request):
-        """
-            Custom action to create a request.
-        """
-        # Create a dictionary with the request data and the current user
-        data = request.data.copy()  # Use copy to avoid modifying the original request data
-        data['user'] = request.user  # Assign the current user instance
+    def perform_create(self, serializer):
+        # The 'user' field is set in the serializer's create method
+        serializer.save()
 
-        serializer = self.get_serializer(data=data)
-        if serializer.is_valid():
-            request_instance = serializer.save(user=request.user)  # Pass the user when saving
-            return Response({'status': 'request created'}, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def perform_update(self, serializer):
+        previous_instance = self.get_object()
+        previous_approved = previous_instance.approved
+        instance = serializer.save()
 
-    @action(detail=True, methods=['put'], url_path='update-user')
-    def update_request_action(self, request, pk=None):
-        """
-        Update request
-        """
-        dRequest = get_object_or_404(Request, pk=pk)
+        # Check if 'approved' has been changed to True
+        if not previous_approved and instance.approved:
+            # Prevent admins from approving their own requests
+            if instance.user == self.request.user:
+                # Revert the approval
+                instance.approved = False
+                instance.save()
+                raise serializer.ValidationError("You cannot approve your own request.")
 
-        #checking to see if approved flag is updated
-        approved_update = request.data.get('approved')
-        if approved_update is not None:
-            if approved_update:
-                request.data ['approved_by'] = request.user.id
-                request.data ['approved_date'] = date.today()
-                
-        serializer = RequestSerializer(dRequest, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'status': 'Request Updated'},status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-
-        
-
-
+            # Create an Assignment
+            Assignment.objects.create(
+                user=instance.user,
+                asset=instance.asset,
+                request=instance,
+                assignment_date=timezone.now().date(),
+                return_date=instance.end_date,
+                returned=False
+            )

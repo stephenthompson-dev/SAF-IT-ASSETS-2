@@ -1,3 +1,5 @@
+// src/components/UI/Table.jsx
+
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { useState, useEffect } from "react";
 
@@ -13,37 +15,34 @@ const Table = ({
   const [selectedRow, setSelectedRow] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  // Show the modal and start the animation
   useEffect(() => {
     if (selectedRow) {
-      // Allow time for the modal to mount before starting the animation
       const timer = setTimeout(() => {
         setIsModalVisible(true);
-      }, 10); // Small delay to ensure the modal is mounted
+      }, 10);
 
-      return () => clearTimeout(timer); // Cleanup the timer if component unmounts
+      return () => clearTimeout(timer);
     }
   }, [selectedRow]);
 
-  // Function to hide the modal with animation
   const closeModal = () => {
     setIsModalVisible(false);
-    // Wait for the transition to complete before removing the modal from DOM
     setTimeout(() => {
       setSelectedRow(null);
-    }, 300); // Match this duration with your transition duration
+    }, 300);
   };
 
-  // Function to handle row click
   const handleRowClick = (row) => {
-    setSelectedRow(row);
+    if (onEdit || onDelete) {
+      setSelectedRow(row);
+    }
   };
 
   return (
     <div className="overflow-x-auto">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">{title}</h2>
-        {showCreateButton && (
+        {showCreateButton && onCreate && (
           <button
             onClick={onCreate}
             className="flex items-center px-4 py-2 bg-slate-500 text-white rounded-md hover:bg-slate-600"
@@ -64,6 +63,11 @@ const Table = ({
                 {column.Header}
               </th>
             ))}
+            {(onEdit || onDelete) && (
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            )}
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -81,13 +85,39 @@ const Table = ({
                   {row[column.accessor]}
                 </td>
               ))}
+              {(onEdit || onDelete) && (
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {onEdit && (
+                    <button
+                      className="text-blue-500 hover:underline mr-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(row);
+                      }}
+                    >
+                      Edit
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      className="text-red-500 hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(row);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
       </table>
 
       {/* Modal for Edit/Delete */}
-      {selectedRow && (
+      {selectedRow && (onEdit || onDelete) && (
         <div
           className={`fixed inset-0 flex justify-center items-center z-50 transition-opacity duration-300 ${
             isModalVisible ? 'opacity-100' : 'opacity-0'
@@ -101,28 +131,32 @@ const Table = ({
           >
             <h3 className="text-lg font-semibold mb-4">Select an action</h3>
             <div className="flex justify-around space-x-4">
-              <button
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                onClick={() => {
-                  onEdit(selectedRow);
-                  closeModal();
-                }}
-              >
-                Edit
-              </button>
-              <button
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                onClick={() => {
-                  if (
-                    window.confirm('Are you sure you want to delete this record?')
-                  ) {
-                    onDelete(selectedRow);
-                  }
-                  closeModal();
-                }}
-              >
-                Delete
-              </button>
+              {onEdit && (
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  onClick={() => {
+                    onEdit(selectedRow);
+                    closeModal();
+                  }}
+                >
+                  Edit
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                  onClick={() => {
+                    if (
+                      window.confirm('Are you sure you want to delete this record?')
+                    ) {
+                      onDelete(selectedRow);
+                    }
+                    closeModal();
+                  }}
+                >
+                  Delete
+                </button>
+              )}
             </div>
             <button
               className="mt-4 text-gray-600 underline"

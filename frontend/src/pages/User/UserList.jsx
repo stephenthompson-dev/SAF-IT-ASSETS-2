@@ -1,16 +1,17 @@
-import { useState, useEffect } from "react";
+// src/components/Users/UserList.jsx
+
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from '../../api';
+import api from '../../api';  // Axios for session-based auth
 import Table from '../../components/UI/Table';
 import LoadingIndicator from '../../components/UI/LoadingIndicator';
+import { toast } from 'react-toastify';
 
 const Users = () => {
-  const [users, setUsers] = useState([]); // State to store user data
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
-  const navigate = useNavigate(); 
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // Define the columns for the table
   const columns = [
     { Header: "ID", accessor: "id" },
     { Header: "Username", accessor: "username" },
@@ -19,29 +20,27 @@ const Users = () => {
     { Header: "Email", accessor: "email" },
   ];
 
-  // Fetch users when the component mounts
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await api.get("/users/");
-        setUsers(response.data); // Set the fetched user data
-      } catch (err) {
-        setError(err.message); // Handle errors
+        setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        toast.error("Error fetching users.");
       } finally {
-        setLoading(false); // Set loading to false after fetching
+        setLoading(false);
       }
     };
 
-    fetchData(); // Call the fetch function
+    fetchData();
   }, []);
 
-  // Define event handlers for table actions
   const handleCreate = () => {
-    navigate("/create-user"); // Navigate to the create user form
+    navigate("/create-user");
   };
 
   const handleEdit = (selectedRow) => {
-    // Navigate to the edit page for the selected user
     navigate(`/users/${selectedRow.id}/edit`);
   };
 
@@ -49,26 +48,21 @@ const Users = () => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
         await api.delete(`/users/${selectedRow.id}/`);
-        // Remove the deleted user from the state
         setUsers(prevUsers => prevUsers.filter(user => user.id !== selectedRow.id));
-        console.log("User deleted successfully");
+        toast.success("User deleted successfully!");
       } catch (error) {
-        console.error("Failed to delete user:", error);
-        setError("Failed to delete user.");
+        console.error("Error deleting user:", error);
+        toast.error("Failed to delete user.");
       }
     }
   };
 
   if (loading) {
-    return <LoadingIndicator />; // Show loading state
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>; // Show error message
+    return <LoadingIndicator />;
   }
 
   return (
-    <div>
+    <div className="p-4">
       <Table
         title="Users"
         columns={columns}

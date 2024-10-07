@@ -1,88 +1,61 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import api from '../../api';
-import Table from '../../components/UI/Table';
-import LoadingIndicator from '../../components/UI/LoadingIndicator';
+// ../../components/Assignments/AssignmentList.jsx
+import React, { useEffect, useState } from 'react';
+import Table from '../../components/UI/Table'; // Adjust the path if necessary
+import api from '../../api'; // Your Axios instance (session-based auth)
 
-const Assignments = () => {
-  const [assignments, setAssignments] = useState([]); // State to store assignment data
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
-  const navigate = useNavigate(); 
-
-  // Define the columns for the table
-  const columns = [
-    { Header: "ID", accessor: "id" },
-    { Header: "User", accessor: "user_first_name" },
-    { Header: "Asset", accessor: "asset_name" },
-    { Header: "Return Date", accessor: "return_date" },
-  ];
+const AssignmentList = () => {
+  const [assignments, setAssignments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await api.get("/assignments/");
-        // Map the data to flatten nested objects for the table
-        const fetchedAssignments = response.data.map((assignment) => ({
-          ...assignment,
-          user_first_name: assignment.user.first_name,
-          asset_name: assignment.asset.asset_name,
-        }));
-        setAssignments(fetchedAssignments); // Set the fetched assignment data
-      } catch (err) {
-        setError(err.message); // Handle errors
-      } finally {
-        setLoading(false); // Set loading to false after fetching
-      }
-    };
-
-    fetchData(); 
+    // Fetch assignments
+    api.get('/assignments/')
+      .then(response => {
+        setAssignments(response.data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching assignments:', error);
+        setError('Error fetching assignments.');
+        setLoading(false);
+      });
   }, []);
 
-  const handleCreate = () => {
-    navigate("/create-assignment");
-  };
+  const columns = [
+    { Header: 'ID', accessor: 'id' },
+    { Header: 'User', accessor: 'user' },
+    { Header: 'Asset', accessor: 'asset' },
+    { Header: 'Request', accessor: 'request' },
+    { Header: 'Assignment Date', accessor: 'assignment_date' },
+    { Header: 'Return Date', accessor: 'return_date' },
+    { Header: 'Returned', accessor: 'returned' },
+  ];
 
-  const handleEdit = (selectedRow) => {
-    // Navigate to the edit page for the selected assignment
-    navigate(`/assignments/${selectedRow.id}/edit`);
-  };
-
-  const handleDelete = async (selectedRow) => {
-    if (window.confirm('Are you sure you want to delete this assignment?')) {
-      try {
-        await api.delete(`/assignments/${selectedRow.id}/`);
-        // Remove the deleted assignment from the state
-        setAssignments(prevAssignments => prevAssignments.filter(assignment => assignment.id !== selectedRow.id));
-        console.log("Assignment deleted successfully");
-      } catch (error) {
-        console.error("Failed to delete assignment:", error);
-        setError("Failed to delete assignment.");
-      }
-    }
-  };
+  const tableData = assignments.map(assignment => ({
+    ...assignment,
+    returned: assignment.returned ? 'Yes' : 'No',
+    return_date: assignment.return_date || 'N/A',
+  }));
 
   if (loading) {
-    return <LoadingIndicator/>; // Show loading state
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>; // Show error message
+    return <div>{error}</div>;
   }
 
   return (
-    <div>
+    <div className="p-4">
       <Table
-        title="Assignments"
         columns={columns}
-        data={assignments}
-        onCreate={handleCreate}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        showCreateButton={false} // Assuming you don't want a "Create" button for assignments
+        data={tableData}
+        title="Assignments"
+        showCreateButton={false}  // No create button for assignments
       />
     </div>
   );
 };
 
-export default Assignments;
+export default AssignmentList;

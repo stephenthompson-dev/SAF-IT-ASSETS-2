@@ -1,3 +1,3 @@
-export {default as Requests} from './RequestList';
-export {default as CreateRequest} from './CreateRequest';
-export {default as RequestDetails} from './RequestDetailForm';
+export {default as RequestList} from './RequestList';
+export {default as CreateRequestForm} from './CreateRequestForm';
+export {default as EditRequestForm} from './EditRequestForm';

@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api';
-import { ACCESS_TOKEN, REFRESH_TOKEN } from '../constants';
-import LoadingIndicator from '../components/UI/LoadingIndicator'; // Make sure to create this component
+import LoadingIndicator from '../components/UI/LoadingIndicator'; // Make sure this component exists
+import api, { getCsrfToken } from '../api';  // Import the Axios instance and CSRF token helper
+import { toast } from 'react-toastify';  // For better notifications
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -15,12 +15,21 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const res = await api.post('/api/token/', { username, password });
-      localStorage.setItem(ACCESS_TOKEN, res.data.access);
-      localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-      navigate('/');
+      // Ensure CSRF token is present
+      await getCsrfToken();
+      
+      // Perform the login request
+      const response = await api.post('/auth/login/', { username, password });
+      
+      if (response.status === 200) {
+        toast.success('Logged in successfully!');
+        navigate('/');  // Navigate to the home page after login
+      } else {
+        toast.error('Login failed. Please try again.');
+      }
     } catch (error) {
-      alert(error.response?.data?.detail || 'An error occurred');
+      console.error("Login error:", error);
+      toast.error(error.response?.data?.detail || 'Login failed.');
     } finally {
       setLoading(false);
     }
@@ -64,13 +73,14 @@ const Login = () => {
             />
           </div>
           
-          {loading && <LoadingIndicator />}
+          {loading && <LoadingIndicator />}  {/* Show a loading indicator when the request is in progress */}
           
           <button
             type="submit"
             className="w-full py-2 px-4 bg-slate-800 text-white font-medium rounded-md shadow-md hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400"
+            disabled={loading}  // Disable button while loading
           >
-            Log In
+            {loading ? 'Logging In...' : 'Log In'}
           </button>
         </form>
       </div>

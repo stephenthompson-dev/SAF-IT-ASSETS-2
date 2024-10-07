@@ -1,3 +1,3 @@
 export {default as AssetList} from './AssetList';
-export {default as CreateAsset} from './CreateAsset';
-export {default as AssetDetails} from './AssetDetails';
+export {default as CreateAssetForm} from './CreateAssetForm';
+export {default as EditAssetForm} from './EditAssetForm';

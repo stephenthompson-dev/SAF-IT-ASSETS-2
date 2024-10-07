@@ -1,68 +1,34 @@
-// api.js
+import axios from 'axios';
+import { useEffect } from 'react';
 
-import axios from "axios";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
-
+// Create Axios instance
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL // Ensure no trailing slash
+  baseURL: 'http://localhost:8000',  // Update with your API base URL
+  withCredentials: true,  // Allow credentials such as cookies to be sent with requests
 });
 
-// Request interceptor to add Authorization header
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem(ACCESS_TOKEN);
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        console.error("Request Error:", error);
-        return Promise.reject(error);
-    }
-);
+// Function to get CSRF token and set it globally in the Axios instance
+export const getCsrfToken = async () => {
+  try {
+    const response = await api.get('/auth/csrf/');
+    const csrfToken = response.data.csrfToken;
 
-// Response interceptor to handle token refresh
-api.interceptors.response.use(
-    (response) => {
-        return response; // Return the response if no error
-    },
-    async (error) => {
-        const originalRequest = error.config;
+    // Set CSRF token for all future requests
+    api.defaults.headers['X-CSRFToken'] = csrfToken;
+  } catch (error) {
+    console.error('Error fetching CSRF token', error);
+  }
+};
 
-        // Prevent infinite loops
-        if (error.response && error.response.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-            const refreshToken = localStorage.getItem(REFRESH_TOKEN);
-            if (refreshToken) {
-                try {
-                    // Option 1: Using string concatenation
-                    // const refreshUrl = `${import.meta.env.VITE_API_URL}/api/token/refresh/`;
-
-                    // Option 2: Using url-join
-                    const refreshUrl = urlJoin(import.meta.env.VITE_API_URL, "/api/token/refresh/");
-
-                    const response = await axios.post(refreshUrl, {
-                        refresh: refreshToken
-                    });
-
-                    const newAccessToken = response.data.access;
-                    localStorage.setItem(ACCESS_TOKEN, newAccessToken);
-                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
-                    return api(originalRequest);
-                } catch (refreshError) {
-                    console.error("Refresh token failed:", refreshError);
-                    // Optionally, redirect to login or show a message to the user
-                }
-            } else {
-                console.error("No refresh token available.");
-                // Optionally, redirect to login or show a message to the user
-            }
-        }
-
-        return Promise.reject(error);
-    }
-);
+// Custom hook for using CSRF token in React components
+export const useCsrfToken = () => {
+  useEffect(() => {
+    // Fetch and set the CSRF token when the component mounts
+    const fetchCsrfToken = async () => {
+      await getCsrfToken();
+    };
+    fetchCsrfToken();
+  }, []);  // Empty dependency array to run once on mount
+};
 
 export default api;
