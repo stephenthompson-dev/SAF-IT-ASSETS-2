@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { TagIcon, HomeIcon, UserGroupIcon, CpuChipIcon, BriefcaseIcon, ArrowLeftStartOnRectangleIcon, MagnifyingGlassPlusIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { Bars3Icon } from "@heroicons/react/24/solid";
+import { useAuth } from "../../contexts/AuthContext";
 
 const SideBar = () => {
     const [isExpanded, setIsExpanded] = useState(false); // State to control sidebar expansion
+    const { logout } = useAuth();
 
     return (
         <div className="flex min-h-screen">
@@ -63,10 +65,10 @@ const SideBar = () => {
                 {/* Logout Button at the Bottom */}
                 <div className="mt-auto mb-4">
                     <SideBarIcon
+                        onClick={logout}
                         icon={<ArrowLeftStartOnRectangleIcon className="h-8 w-8" />}
                         text="Logout"
                         isExpanded={isExpanded}
-                        path="/logout"
                     />
                 </div>
             </div>
@@ -83,8 +85,8 @@ const SideBar = () => {
     );
 };
 
-const SideBarIcon = ({ icon, text = "tooltip", isExpanded, path }) => (
-    <Link to={path}>
+const SideBarIcon = ({ icon, text = "tooltip", isExpanded, path, onClick }) => (
+    <Link to={path ? path : null} onClick={onClick ? onClick : null}>
         <div
             className={`sidebar-icon group flex items-center h-12 w-full mt-2 mb-2 bg-slate-500 text-white rounded-lg hover:bg-slate-600 cursor-pointer transition-all duration-300 ease-in-out ${path === "/logout"
                 } relative ${isExpanded ? "justify-start px-4" : "justify-center"}`}

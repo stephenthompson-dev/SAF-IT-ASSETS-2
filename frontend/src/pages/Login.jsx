@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import LoadingIndicator from '../components/UI/LoadingIndicator'; // Make sure this component exists
 import api, { getCsrfToken } from '../api';  // Import the Axios instance and CSRF token helper
 import { toast } from 'react-toastify';  // For better notifications
+import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -10,32 +11,15 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const { login } = useAuth();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
     try {
-      // Ensure CSRF token is present
-      await getCsrfToken();
-  
-      // Perform the login request
-      const response = await api.post('/auth/login/', { username, password });
-      
-      if (response.status === 200) {
-        // After login, refetch the CSRF token and set it for future requests
-        const csrfToken = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('csrftoken='))
-          ?.split('=')[1];
-        api.defaults.headers.common['X-CSRFToken'] = csrfToken;
-  
-        toast.success('Logged in successfully!');
-        navigate('/');  // Navigate to the home page after login
-      } else {
-        toast.error('Login failed. Please try again.');
-      }
+      await login(username, password);
+      navigate('/');
     } catch (error) {
-      console.error("Login error:", error);
       toast.error(error.response?.data?.detail || 'Login failed.');
     } finally {
       setLoading(false);
@@ -57,6 +41,7 @@ const Login = () => {
               type="text"
               id="username"
               name="username"
+              autoComplete='username'
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter your username"
@@ -74,6 +59,7 @@ const Login = () => {
               id="password"
               name="password"
               value={password}
+              autoComplete="current-password"
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               className="mt-1 block w-full px-4 py-2 text-slate-900 bg-slate-200 border border-slate-300 rounded-md focus:ring-2 focus:ring-slate-500"

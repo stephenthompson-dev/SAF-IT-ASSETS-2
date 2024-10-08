@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useEffect } from 'react';
 
 // Create Axios instance
 const api = axios.create({
@@ -18,17 +17,6 @@ export const getCsrfToken = async () => {
   } catch (error) {
     console.error('Error fetching CSRF token', error);
   }
-};
-
-// Custom hook for using CSRF token in React components
-export const useCsrfToken = () => {
-  useEffect(() => {
-    // Fetch and set the CSRF token when the component mounts
-    const fetchCsrfToken = async () => {
-      await getCsrfToken();
-    };
-    fetchCsrfToken();
-  }, []);  // Empty dependency array to run once on mount
 };
 
 export default api;

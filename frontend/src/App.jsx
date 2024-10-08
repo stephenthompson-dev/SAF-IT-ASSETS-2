@@ -12,17 +12,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './contexts/AuthContext';
 import { toast } from 'react-toastify';
 
-
-function Logout() {
-  // Clear cookies (you may need to manually clear CSRF cookies)
-  document.cookie = 'csrftoken=; Max-Age=0; path=/;';
-
-  // Clear localStorage
-  localStorage.clear();
-  toast.success('Logged out successfully');
-  return <Navigate to="/login" />;
-}
-
 function App() {
   return (
     <AuthProvider>
@@ -58,9 +47,6 @@ function App() {
 
             <Route path="*" element={<NotFound />} />
           </Route>
-
-          {/* Logout Route */}
-          <Route path="/logout" element={<Logout />} />
         </Routes>
         <ToastContainer />
       </BrowserRouter>

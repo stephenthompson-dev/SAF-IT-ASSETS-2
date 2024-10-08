@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api, {useCsrfToken} from '../../api';  // Axios for session-based auth
 import Table from '../../components/UI/Table';
 import LoadingIndicator from '../../components/UI/LoadingIndicator';
 import { toast } from 'react-toastify';
@@ -12,7 +11,6 @@ const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  useCsrfToken();
 
   const columns = [
     { Header: "ID", accessor: "id" },

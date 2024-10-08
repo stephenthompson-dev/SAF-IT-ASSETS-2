@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import api from '../api';  // Axios instance, ensure it has withCredentials enabled
+import api, { getCsrfToken} from '../api';  // Axios instance, ensure it has withCredentials enabled
 import { toast } from 'react-toastify';
 
 // Create AuthContext
@@ -13,29 +13,15 @@ export const AuthProvider = ({ children }) => {
   // Function to check authentication status and rehydrate session
   useEffect(() => {
     const checkAuthStatus = async () => {
+      debugger;
       try {
         // Check if the user is authenticated by checking the session
         const response = await api.get('/auth/me/', { withCredentials: true });
-        
         if (response.status === 200) {
-          setUser(response.data);  // Set the user data if authenticated
-          
-          // Retrieve and set the CSRF token after refresh
-          const csrfToken = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('csrftoken='))
-            ?.split('=')[1];
-  
-          // Set the CSRF token for future requests
-          api.defaults.headers.common['X-CSRFToken'] = csrfToken;
-  
-        } else {
-          setUser(null);  // If not authenticated, clear the user
-        }
+          setUser(response.data);
+        } 
       } catch (error) {
         console.error('Error checking auth status:', error);
-        toast.error('Failed to check authentication status.');
-        setUser(null);
       } finally {
         setIsLoading(false);  // Ensure loading state is updated
       }
@@ -48,44 +34,19 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     setIsLoading(true);  // Set loading during login
     try {
-      // Fetch CSRF token before making the login request
-      const csrfResponse = await api.get('/auth/csrf/');
-      const csrfToken = csrfResponse.data.csrfToken;
-
-      // Perform login request
-      const response = await api.post('/auth/login/', 
-        { username, password },
-        {
-          headers: {
-            'X-CSRFToken': csrfToken,  // Pass the CSRF token in the header
-          },
-          withCredentials: true,  // Ensure cookies are included in the request
-        }
-      );
-
+      await getCsrfToken();
+      const response = await api.post('/auth/login/',  { username, password });
       if (response.status === 200) {
-        // Set user data after successful login
-        setUser(response.data);
-
-        // Retrieve the new CSRF token from cookies
-        const newCsrfToken = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('csrftoken='))
-          ?.split('=')[1];
-
-        // Set the new CSRF token for future API requests
-        api.defaults.headers.common['X-CSRFToken'] = newCsrfToken;
-
-        // Show success toast message
+        const userResponse = await api.get('/auth/me/');
+        setUser(userResponse.data);
         toast.success('Logged in successfully!');
       } else {
         throw new Error('Login failed.');
       }
     } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Failed to login.');
+      throw new Error('Login failed.');
     } finally {
-      setIsLoading(false);  // Set loading to false after the request
+      setIsLoading(false);
     }
   };
 
@@ -94,28 +55,15 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(true);  // Set loading during logout
     try {
       // Fetch CSRF token before making the logout request
-      const csrfResponse = await api.get('/auth/csrf/');
-      const csrfToken = csrfResponse.data.csrfToken;
-
-      // Perform logout request
-      await api.post(
-        '/auth/logout/',
-        {},
-        {
-          headers: {
-            'X-CSRFToken': csrfToken,  // Pass the CSRF token in the header
-          },
-          withCredentials: true,  // Include credentials in the request
-        }
-      );
-
-      setUser(null);  // Clear user data after logout
-      toast.success('Logged out successfully!');  // Show success toast
+      await getCsrfToken();
+      await api.post('/auth/logout/');
+      setUser(null);
+      toast.success('Logged out successfully!');
     } catch (error) {
       console.error('Logout error:', error);
-      toast.error('Failed to logout.');  // Show error toast
+      toast.error('Failed to logout.');
     } finally {
-      setIsLoading(false);  // Set loading to false after the request
+      setIsLoading(false); 
     }
   };
 
@@ -130,6 +78,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
+    // this is only for TypeScript - should probs be removed
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
