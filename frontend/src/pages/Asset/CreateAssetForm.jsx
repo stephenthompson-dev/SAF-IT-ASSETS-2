@@ -15,7 +15,7 @@ const CreateAssetForm = () => {
         const categories = response.data;
         const options = categories.map(category => ({
           value: category.id,
-          label: category.name,
+          label: category.category_name,
         }));
         setCategoryOptions(options);
       })

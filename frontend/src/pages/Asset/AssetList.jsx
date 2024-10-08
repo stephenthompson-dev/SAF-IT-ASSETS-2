@@ -50,7 +50,7 @@ const Assets = () => {
   };
 
   const handleEdit = (selectedRow) => {
-    navigate(`/assets/edit/${selectedRow.id}/edit`);
+    navigate(`/assets/edit/${selectedRow.id}/`);
   };
 
   const handleDelete = async (selectedRow) => {
