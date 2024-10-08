@@ -62,12 +62,13 @@ const FormComponent = ({ schema, onSubmit, fields, title }) => {
                     // Handle select fields
                     <label className="block text-sm text-slate-200">
                       {field.label}
-                      <SearchableSelect
+                      <SearchableSelect class
                         options={field.options}
                         placeholder={field.placeholder || "Select..."}
                         onChange={(value) => setFieldValue(field.name, value)} // Send the selected value
                         value={values[field.name]} // Pass the current selected value
                         isDisabled={isReadOnly} // Disable if read-only
+            
                       />
 
                       {errors[field.name] && touched[field.name] && (

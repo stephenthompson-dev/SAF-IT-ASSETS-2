@@ -11,9 +11,19 @@ const RequestList = () => {
   const [requests, setRequests] = useState([]);
   const { user } = useAuth(); // Access user info from AuthContext
   const navigate = useNavigate();
-  const isAdmin = user?.is_staff;
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+
+    api.get('/auth/me/')
+    .then(response => {
+      setIsAdmin(response.data.role === 'admin');
+      console.log(response.data.role)
+    })
+    .catch(error => {
+      console.error('Error fetching user data:', error);
+      setIsAdmin(false);  // Default to false if there's an issue fetching user data
+    });
     // Fetch requests whenever isAdmin or user.id changes
     const fetchRequests = async () => {
       try {

@@ -46,11 +46,11 @@ const Assets = () => {
   }, []);
 
   const handleCreate = () => {
-    navigate("/create-asset");
+    navigate("/assets/create");
   };
 
   const handleEdit = (selectedRow) => {
-    navigate(`/assets/${selectedRow.id}/edit`);
+    navigate(`/assets/edit/${selectedRow.id}/edit`);
   };
 
   const handleDelete = async (selectedRow) => {

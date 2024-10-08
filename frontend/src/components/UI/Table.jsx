@@ -63,11 +63,6 @@ const Table = ({
                 {column.Header}
               </th>
             ))}
-            {(onEdit || onDelete) && (
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            )}
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -85,32 +80,6 @@ const Table = ({
                   {row[column.accessor]}
                 </td>
               ))}
-              {(onEdit || onDelete) && (
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {onEdit && (
-                    <button
-                      className="text-blue-500 hover:underline mr-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(row);
-                      }}
-                    >
-                      Edit
-                    </button>
-                  )}
-                  {onDelete && (
-                    <button
-                      className="text-red-500 hover:underline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete(row);
-                      }}
-                    >
-                      Delete
-                    </button>
-                  )}
-                </td>
-              )}
             </tr>
           ))}
         </tbody>

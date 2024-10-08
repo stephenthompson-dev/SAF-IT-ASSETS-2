@@ -2,15 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from '../../api';  // Axios for session-based auth
+import api, {useCsrfToken} from '../../api';  // Axios for session-based auth
 import Table from '../../components/UI/Table';
 import LoadingIndicator from '../../components/UI/LoadingIndicator';
 import { toast } from 'react-toastify';
+
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  useCsrfToken();
 
   const columns = [
     { Header: "ID", accessor: "id" },
@@ -37,11 +39,11 @@ const Users = () => {
   }, []);
 
   const handleCreate = () => {
-    navigate("/create-user");
+    navigate("/users/create");
   };
 
   const handleEdit = (selectedRow) => {
-    navigate(`/users/${selectedRow.id}/edit`);
+    navigate(`/users/edit/${selectedRow.id}/`);
   };
 
   const handleDelete = async (selectedRow) => {

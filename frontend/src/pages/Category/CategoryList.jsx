@@ -15,6 +15,7 @@ const CategoryList = () => {
     api.get('/auth/me/')
       .then(response => {
         setIsAdmin(response.data.role === 'admin');
+        console.log(response.data.role)
       })
       .catch(error => {
         console.error('Error fetching user data:', error);

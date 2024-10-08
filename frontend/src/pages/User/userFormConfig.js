@@ -7,7 +7,7 @@ export const userFormFields = [
     { name: 'email', label: 'Email', type: 'email' },
     { name: 'password1', label: 'Password', type: 'password' },
     { name: 'password2', label: 'Confirm Password', type: 'password' },
-    { name: 'is_superuser', label: 'Is Superuser', type: 'checkbox' },
+    { name: 'is_staff', label: 'Is Admin', type: 'checkbox' },
   ];
   
   export const initialUserValues = {
@@ -17,6 +17,6 @@ export const userFormFields = [
     email: '',
     password1: '',
     password2: '',
-    is_superuser: false,
+    is_staff: false,
   };
   
