@@ -27,7 +27,25 @@ const FormComponent = ({ schema, onSubmit, fields, title }) => {
       <Formik
         initialValues={initialValues}
         validationSchema={schema}
-        onSubmit={onSubmit}
+        onSubmit={async (values, { setSubmitting, setErrors }) => {
+          try {
+            await onSubmit(values);  // Call the passed onSubmit handler (could be async)
+          } catch (error) {
+            console.error("Submission error: ", error);  // Debugging error
+            if (error.response && error.response.data) {
+              // Log the error response from backend to check its structure
+              console.log("Backend errors:", error.response.data);
+              
+              // Assuming backend returns errors as an object with field names
+              const backendErrors = error.response.data.errors || error.response.data;  // Adjust this based on actual error structure
+              
+              // Set backend errors into Formik's error state
+              setErrors(backendErrors);  
+            }
+          } finally {
+            setSubmitting(false);
+          }
+        }}
         enableReinitialize // Allows the form to reinitialize when initialValues change
       >
         {({ isSubmitting, errors, touched, setFieldValue, values }) => (
@@ -62,15 +80,13 @@ const FormComponent = ({ schema, onSubmit, fields, title }) => {
                     // Handle select fields
                     <label className="block text-sm text-slate-200">
                       {field.label}
-                      <SearchableSelect class
+                      <SearchableSelect
                         options={field.options}
                         placeholder={field.placeholder || "Select..."}
                         onChange={(value) => setFieldValue(field.name, value)} // Send the selected value
                         value={values[field.name]} // Pass the current selected value
                         isDisabled={isReadOnly} // Disable if read-only
-            
                       />
-
                       {errors[field.name] && touched[field.name] && (
                         <div className="text-red-500 text-xs mt-1">
                           {errors[field.name]}

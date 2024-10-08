@@ -35,10 +35,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
 
-CSRF_TRUSTED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
-
 CORS_ALLOW_CREDENTIALS = True
-
 
 CORS_ALLOW_HEADERS = [
     'accept',
@@ -77,10 +74,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "api",
     "rest_framework",
     "corsheaders",
-    "backend"
+    "api",    
 ]
 
 MIDDLEWARE = [
@@ -182,8 +178,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 CSRF_COOKIE_HTTPONLY = False  # Allow frontend to access the CSRF cookie for setting headers
 CSRF_USE_SESSIONS = True  # Store the CSRF token in the session
+CSRF_TRUSTED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
 
 # Session settings
-SESSION_COOKIE_SECURE = False  # Set to True if using HTTPS in production
+SESSION_COOKIE_SECURE = True  # Set to True if using HTTPS in production
 SESSION_COOKIE_HTTPONLY = True
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Store session data in the database
+SESSION_COOKIE_SAMESITE = 'Lax'  # Consider 'Strict' for more security

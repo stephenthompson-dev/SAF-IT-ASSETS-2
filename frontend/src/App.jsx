@@ -10,9 +10,16 @@ import SideBar from './components/UI/sidebar';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './contexts/AuthContext';
+import { toast } from 'react-toastify';
+
 
 function Logout() {
+  // Clear cookies (you may need to manually clear CSRF cookies)
+  document.cookie = 'csrftoken=; Max-Age=0; path=/;';
+
+  // Clear localStorage
   localStorage.clear();
+  toast.success('Logged out successfully');
   return <Navigate to="/login" />;
 }
 

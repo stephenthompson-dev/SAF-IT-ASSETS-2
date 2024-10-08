@@ -1,9 +1,8 @@
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.middleware.csrf import get_token
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.middleware.csrf import get_token
 from rest_framework.permissions import AllowAny
 
 class AuthViewSet(viewsets.ViewSet):
@@ -18,18 +17,26 @@ class AuthViewSet(viewsets.ViewSet):
         """
         Handles user login via username and password.
         """
-        username = request.data.get('username')  # Changed 'user' to 'username'
+        username = request.data.get('username')
         password = request.data.get('password')
-        
+
         if not username or not password:
             return Response({"detail": "Username and password are required."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Authenticate the user by username
         user = authenticate(username=username, password=password)
-        
+
         if user is not None:
-            login(request, user)  # Login the user using Django's session-based login
-            return Response({"detail": "Logged in successfully."}, status=status.HTTP_200_OK)
+            # Log in the user using Django's session-based login
+            login(request, user)
+
+            # Regenerate the CSRF token after login
+            csrf_token = get_token(request)
+
+            # Return success response along with the new CSRF token
+            response = Response({"detail": "Logged in successfully."}, status=status.HTTP_200_OK)
+            response.set_cookie('csrftoken', csrf_token)  # Send the CSRF token as a cookie
+            return response
         else:
             return Response({"detail": "Invalid username or password."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -48,7 +55,7 @@ class AuthViewSet(viewsets.ViewSet):
         """
         csrf_token = get_token(request)
         return Response({"csrfToken": csrf_token}, status=status.HTTP_200_OK)
-    
+
     @action(detail=False, methods=['get'], url_path='me')
     def me(self, request):
         """

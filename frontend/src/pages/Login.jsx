@@ -13,15 +13,22 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
       // Ensure CSRF token is present
       await getCsrfToken();
-      
+  
       // Perform the login request
       const response = await api.post('/auth/login/', { username, password });
       
       if (response.status === 200) {
+        // After login, refetch the CSRF token and set it for future requests
+        const csrfToken = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('csrftoken='))
+          ?.split('=')[1];
+        api.defaults.headers.common['X-CSRFToken'] = csrfToken;
+  
         toast.success('Logged in successfully!');
         navigate('/');  // Navigate to the home page after login
       } else {
@@ -34,6 +41,7 @@ const Login = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
