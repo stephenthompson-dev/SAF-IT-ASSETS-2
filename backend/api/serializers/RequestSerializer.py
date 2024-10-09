@@ -7,11 +7,7 @@ from ..models import Request, Asset
 class RequestSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)  # Displays the username
     asset = serializers.PrimaryKeyRelatedField(queryset=Asset.objects.all())  # Accepts asset ID
-    approved_by = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        required=False,
-        allow_null=True
-    )
+    approved_by = serializers.SerializerMethodField()
 
     class Meta:
         model = Request
@@ -84,3 +80,7 @@ class RequestSerializer(serializers.ModelSerializer):
             validated_data.pop('approved_by', None)
 
         return super().update(instance, validated_data)
+
+    def get_approved_by(self, obj):
+         # Check if approved_by is set and return the username or 'N/A'
+        return obj.approved_by.username if obj.approved_by else 'N/A'

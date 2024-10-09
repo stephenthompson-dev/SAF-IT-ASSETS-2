@@ -1,5 +1,3 @@
-// src/components/UI/Table.jsx
-
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { useState, useEffect } from "react";
 
@@ -11,6 +9,7 @@ const Table = ({
   showCreateButton = true,
   onEdit,
   onDelete,
+  onApprove, // Add the onApprove prop
 }) => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -33,7 +32,7 @@ const Table = ({
   };
 
   const handleRowClick = (row) => {
-    if (onEdit || onDelete) {
+    if (onEdit || onDelete || onApprove) {
       setSelectedRow(row);
     }
   };
@@ -85,8 +84,8 @@ const Table = ({
         </tbody>
       </table>
 
-      {/* Modal for Edit/Delete */}
-      {selectedRow && (onEdit || onDelete) && (
+      {/* Modal for Edit/Delete/Approve */}
+      {selectedRow && (onEdit || onDelete || onApprove) && (
         <div
           className={`fixed inset-0 flex justify-center items-center z-50 transition-opacity duration-300 ${
             isModalVisible ? 'opacity-100' : 'opacity-0'
@@ -124,6 +123,17 @@ const Table = ({
                   }}
                 >
                   Delete
+                </button>
+              )}
+              {onApprove && (
+                <button
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                  onClick={() => {
+                    onApprove(selectedRow);
+                    closeModal();
+                  }}
+                >
+                  Approve
                 </button>
               )}
             </div>

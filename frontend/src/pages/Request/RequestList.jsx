@@ -30,18 +30,12 @@ const RequestList = () => {
         const response = await api.get('/requests/');
         let data = response.data;
   
-        // If not admin, filter to only show user's own requests
-        if (!isAdmin && user) {
-          data = data.filter(request => request.user_id === user.id);
-        }
-  
         setRequests(data);
       } catch (error) {
         console.error('Error fetching requests:', error);
         toast.error('Error fetching requests.');
       }
     };
-
     fetchRequests();
   }, [isAdmin, user]);
 
@@ -52,7 +46,6 @@ const RequestList = () => {
     { Header: 'Asset', accessor: 'asset' },
     { Header: 'For Date', accessor: 'for_date' },
     { Header: 'End Date', accessor: 'end_date' },
-    { Header: 'Further Notice', accessor: 'further_notice' },
     { Header: 'Approved', accessor: 'approved' },
     { Header: 'Approved Date', accessor: 'approved_date' },
     { Header: 'Approved By', accessor: 'approved_by' },
@@ -63,6 +56,10 @@ const RequestList = () => {
   };
 
   const handleEdit = (row) => {
+    if (row.approved_by){
+      toast.error("Cannot edit approved request")
+      return
+    }
     navigate(`/requests/edit/${row.id}`);
   };
 
@@ -80,6 +77,10 @@ const RequestList = () => {
   };
 
   const handleApprove = async (row) => {
+    if (user.username == row.user){
+      toast.error("you cannot approve your own request")
+      return
+    }
     if (window.confirm('Are you sure you want to approve this request?')) {
       const approved_by = user.id; // Assuming user object has an 'id' field
 
@@ -117,11 +118,11 @@ const RequestList = () => {
       <Table
         columns={columns}
         data={tableData}
-        onCreate={isAdmin ? handleCreate : null}
+        onCreate={handleCreate}
         title="Requests"
-        showCreateButton={isAdmin}
         onEdit={isAdmin ? handleEdit : null}
         onDelete={isAdmin ? handleDelete : null}
+        onApprove={isAdmin ? handleApprove : null}
       />
     </div>
   );

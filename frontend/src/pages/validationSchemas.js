@@ -107,11 +107,8 @@ export const createRequestSchema = Yup.object().shape({
   for_date: Yup.date()
     .required('For Date is required')
     .min(new Date(), 'For Date must be in the future'),
-  end_date: Yup.date().when('further_notice', {
-    is: false,
-    then: Yup.date().required('End Date is required when Further Notice is not checked'),
-    otherwise: Yup.date().nullable(),
-  }),
+  end_date: Yup.date()
+    .required('End Date is required'),
   further_notice: Yup.boolean(),
 });
 
@@ -120,21 +117,12 @@ export const updateRequestSchema = Yup.object().shape({
   for_date: Yup.date()
     .required('For Date is required')
     .min(new Date(), 'For Date must be in the future'),
-  end_date: Yup.date().when('further_notice', {
-    is: false,
-    then: Yup.date().required('End Date is required when Further Notice is not checked'),
-    otherwise: Yup.date().nullable(),
-  }),
-  further_notice: Yup.boolean(),
+  end_date: Yup.date().required('End Date is required'),
+  further_notice: Yup.boolean(), // If further_notice is no longer used, this can be removed
   approved: Yup.boolean(),
   approved_date: Yup.date().nullable(),
   approved_by: Yup.number()
     .nullable()
-    .test('is-valid-user', 'Invalid user', async (value) => {
-      if (value === null) return true; // Allow nullable value
-      const validUsers = await fetchValidUsersFromAPI(); // Hypothetical API call
-      return validUsers.includes(value);
-    }),
 });
 
 //#endregion

@@ -12,7 +12,7 @@ class RequestViewSet(viewsets.ModelViewSet):
     """
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         # The 'user' field is set in the serializer's create method
@@ -41,3 +41,13 @@ class RequestViewSet(viewsets.ModelViewSet):
                 return_date=instance.end_date,
                 returned=False
             )
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        
+        # Filter for non-admin users if needed
+        if not request.user.is_staff:
+            queryset = queryset.filter(user=request.user)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
