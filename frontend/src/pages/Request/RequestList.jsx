@@ -13,29 +13,20 @@ const RequestList = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
 
-  useEffect(() => {
+  const fetchRequests = async () => {
+    try {
+      const response = await api.get('/requests/');
+      let data = response.data;
 
-    api.get('/auth/me/')
-    .then(response => {
-      setIsAdmin(response.data.role === 'admin');
-      console.log(response.data.role)
-    })
-    .catch(error => {
-      console.error('Error fetching user data:', error);
-      setIsAdmin(false);  // Default to false if there's an issue fetching user data
-    });
+      setRequests(data);
+    } catch (error) {
+      console.error('Error fetching requests:', error);
+      toast.error('Error fetching requests.');
+    }
+  };
+
+  useEffect(() => {
     // Fetch requests whenever isAdmin or user.id changes
-    const fetchRequests = async () => {
-      try {
-        const response = await api.get('/requests/');
-        let data = response.data;
-  
-        setRequests(data);
-      } catch (error) {
-        console.error('Error fetching requests:', error);
-        toast.error('Error fetching requests.');
-      }
-    };
     fetchRequests();
   }, [isAdmin, user]);
 
@@ -81,6 +72,7 @@ const RequestList = () => {
       toast.error("you cannot approve your own request")
       return
     }
+    debugger
     if (window.confirm('Are you sure you want to approve this request?')) {
       const approved_by = user.id; // Assuming user object has an 'id' field
 
@@ -88,15 +80,14 @@ const RequestList = () => {
         approved: true,
         approved_date: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD
         approved_by: approved_by,
+        asset: row.asset,
+        for_date: row.for_date,
+        end_date: row.end_date,
       };
 
       try {
         const response = await api.put(`/requests/${row.id}/`, updatedData);
-        setRequests(prevRequests =>
-          prevRequests.map(request =>
-            request.id === row.id ? response.data : request
-          )
-        );
+        await fetchRequests();
         toast.success('Request approved successfully!');
       } catch (error) {
         console.error('Error approving request:', error);
@@ -120,9 +111,9 @@ const RequestList = () => {
         data={tableData}
         onCreate={handleCreate}
         title="Requests"
-        onEdit={isAdmin ? handleEdit : null}
-        onDelete={isAdmin ? handleDelete : null}
-        onApprove={isAdmin ? handleApprove : null}
+        onEdit={user.role == 'admin'? handleEdit : null}
+        onDelete={user.role == 'admin' ? handleDelete : null}
+        onApprove={user.role == 'admin' ? handleApprove : null}
       />
     </div>
   );

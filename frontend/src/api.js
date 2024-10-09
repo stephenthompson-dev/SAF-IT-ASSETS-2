@@ -9,11 +9,9 @@ const api = axios.create({
 // Function to get CSRF token and set it globally in the Axios instance
 export const getCsrfToken = async () => {
   try {
-    if (api.defaults.headers['X-CSRFToken']) return;
-
     const response = await api.get('/auth/csrf/');
     const csrfToken = response.data.csrfToken;
-
+    
     // Set CSRF token for all future requests
     api.defaults.headers['X-CSRFToken'] = csrfToken;
   } catch (error) {

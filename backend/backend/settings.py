@@ -90,7 +90,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # Session settings
-SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SECURE = False  # need to change for Render - should be True on prod
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 #SESSION_COOKIE_SAMESITE = 'Lax'  # add back for prod, removed for dev

@@ -12,15 +12,6 @@ const CategoryList = () => {
 
   useEffect(() => {
     // Fetch user information to determine admin status
-    api.get('/auth/me/')
-      .then(response => {
-        setIsAdmin(response.data.role === 'admin');
-        console.log(response.data.role)
-      })
-      .catch(error => {
-        console.error('Error fetching user data:', error);
-        setIsAdmin(false);  // Default to false if there's an issue fetching user data
-      });
 
     // Fetch categories from the backend
     api.get('/categories/')

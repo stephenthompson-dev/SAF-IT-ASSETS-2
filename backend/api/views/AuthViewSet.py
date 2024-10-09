@@ -61,6 +61,7 @@ class AuthViewSet(viewsets.ViewSet):
             user = request.user
             role = "admin" if user.is_staff or user.is_superuser else "regular"
             return Response({
+                "id": user.id,
                 "email": user.email,
                 "username": user.username,
                 "role": role,

@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        await getCsrfToken();
         // Check if the user is authenticated by checking the session
         const response = await api.get('/auth/me/', { withCredentials: true });
         if (response.status === 200) {
@@ -34,15 +33,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     setIsLoading(true);  // Set loading during login
     try {
-      debugger
-      await getCsrfToken();
       const response = await api.post('/auth/login/',  { username, password });
       if (response.status === 200) {
+        await getCsrfToken();
         const userResponse = await api.get('/auth/me/');
         setUser(userResponse.data);
         toast.success('Logged in successfully!');
       } else {
-        throw new Error('Login failed.');
+        throw new Error('Incorrect username and password.');
       }
     } catch (error) {
       throw new Error('Login failed.');
