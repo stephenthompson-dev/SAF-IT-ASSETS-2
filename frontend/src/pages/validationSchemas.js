@@ -73,10 +73,6 @@ export const createAssetSchema = Yup.object().shape({
     .max(new Date(), 'Purchase date cannot be in the future'),
   category: Yup.number()
     .required('Category is required')
-    .test('is-valid-category', 'Invalid category', async (value) => {
-      const validCategories = await fetchCategoriesFromAPI(); // Hypothetical API call
-      return validCategories.includes(value);
-    }),
 });
 
 export const updateAssetSchema = Yup.object().shape({
@@ -86,10 +82,6 @@ export const updateAssetSchema = Yup.object().shape({
     .max(new Date(), 'Purchase date cannot be in the future'),
   category: Yup.number()
     .required('Category is required')
-    .test('is-valid-category', 'Invalid category', async (value) => {
-      const validCategories = await fetchCategoriesFromAPI(); // Hypothetical API call
-      return validCategories.includes(value);
-    }),
 });
 //#endregion
 

@@ -29,13 +29,9 @@ class AuthViewSet(viewsets.ViewSet):
         if user is not None:
             # Log in the user using Django's session-based login
             login(request, user)
-
-            # Regenerate the CSRF token after login
-            csrf_token = get_token(request)
-
-            # Return success response along with the new CSRF token
+            
+            # Return success response
             response = Response({"detail": "Logged in successfully."}, status=status.HTTP_200_OK)
-            response.set_cookie('csrftoken', csrf_token)  # Send the CSRF token as a cookie
             return response
         else:
             return Response({"detail": "Invalid username or password."}, status=status.HTTP_400_BAD_REQUEST)

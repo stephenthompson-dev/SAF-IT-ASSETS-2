@@ -13,13 +13,13 @@ export const AuthProvider = ({ children }) => {
   // Function to check authentication status and rehydrate session
   useEffect(() => {
     const checkAuthStatus = async () => {
-      debugger;
       try {
+        await getCsrfToken();
         // Check if the user is authenticated by checking the session
         const response = await api.get('/auth/me/', { withCredentials: true });
         if (response.status === 200) {
           setUser(response.data);
-        } 
+        }
       } catch (error) {
         console.error('Error checking auth status:', error);
       } finally {
@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     setIsLoading(true);  // Set loading during login
     try {
+      debugger
       await getCsrfToken();
       const response = await api.post('/auth/login/',  { username, password });
       if (response.status === 200) {

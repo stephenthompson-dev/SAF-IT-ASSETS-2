@@ -14,9 +14,7 @@ const DetailsFormComponent = ({ schema, onSubmit, fields, initialValues, title }
             {title && <h2 className="text-xl font-semibold mb-4">{title}</h2>}
             {fields.map((field, index) => {
               // Determine if the field should be read-only
-              const isReadOnly =
-                field.readOnly ||
-                (field.name === 'end_date' && values.further_notice);
+              const isReadOnly = field.readOnly;
 
               return (
                 <div
@@ -52,16 +50,7 @@ const DetailsFormComponent = ({ schema, onSubmit, fields, initialValues, title }
                         type="checkbox"
                         name={field.name}
                         checked={values[field.name]}
-                        onChange={(e) => {
-                          setFieldValue(field.name, e.target.checked);
-
-                          // Clear end_date when further_notice is checked
-                          if (field.name === 'further_notice') {
-                            if (e.target.checked) {
-                              setFieldValue('end_date', '');
-                            }
-                          }
-                        }}
+                        onChange={(e) => setFieldValue(field.name, e.target.checked)}
                         className="h-4 w-4 text-slate-500 bg-slate-300 rounded hover:bg-indigo-400"
                       />
                       <span className="ml-2">{field.label}</span>
@@ -82,7 +71,7 @@ const DetailsFormComponent = ({ schema, onSubmit, fields, initialValues, title }
                         readOnly={isReadOnly}
                         className={`mt-1 block w-full px-3 py-2 ${
                           isReadOnly ? 'bg-slate-400' : 'bg-slate-500'
-                        } text-whiite rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500`}
+                        } text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500`}
                       />
                       {errors[field.name] && touched[field.name] && (
                         <div className="text-red-500 text-xs mt-1">{errors[field.name]}</div>

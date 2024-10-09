@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Table from '../../components/UI/Table';
 import LoadingIndicator from '../../components/UI/LoadingIndicator';
 import { toast } from 'react-toastify';
-
+import api from '../../api'
 
 const Users = () => {
   const [users, setUsers] = useState([]);

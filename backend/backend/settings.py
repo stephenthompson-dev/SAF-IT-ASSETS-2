@@ -56,7 +56,7 @@ MIDDLEWARE = [
 
 
 CORS_ALLOW_CREDENTIALS = True
-
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
 CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 CORS_ALLOW_HEADERS = [
     'accept',
