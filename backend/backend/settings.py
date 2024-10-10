@@ -85,9 +85,7 @@ CSRF_COOKIE_HTTPONLY = False  # Allow frontend to access the CSRF cookie for set
 CSRF_USE_SESSIONS = True  # Store the CSRF token in the session
 
 #CSRF_TRUSTED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',') # Removed for now, add back for render
-CSRF_TRUSTED_ORIGINS = [
-    os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
-]
+CSRF_TRUSTED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
 
 # Session settings
 SESSION_COOKIE_HTTPONLY = False
