@@ -1,56 +1,28 @@
-import {Navigate} from "react-router-dom"
-import {jwtDecode} from "jwt-decode"
-import api from "../../api"
-import { REFRESH_TOKEN, ACCESS_TOKEN } from "../../constants"
-import { useState, useEffect } from "react"
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
-function ProtectedRoute({children}) {
-    const [isAuthorized, setIsAuthorized] = useState(null);
+const ProtectedRoute = ({ children, requiredRole }) => {
+  const { user, isLoading } = useAuth();  // Fetch user and loading status from AuthContext
+  const location = useLocation();  // Store location to redirect back after login
 
-    useEffect(() => {
-        auth().catch(() => setIsAuthorized(false));
-    }, []);
+  // Show loading spinner or message while the auth status is being checked
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
-    const refreshToken = async () => {
-        const refreshToken = localStorage.getItem(REFRESH_TOKEN);
-        try {
-            const res = await api.post("/api/token/refresh/",{
-                refresh: refreshToken,
-            });
-            if(res.status === 200){
-                localStorage.setItem(ACCESS_TOKEN, res.data.access);
-                setIsAuthorized(true);
-            } else {
-                setIsAuthorized(false);
-            }
-        } catch (error) {
-            console.log(error);
-            setIsAuthorized(flase);
-        }
-    };
+  // Redirect to login if the user is not authenticated
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
-    const auth = async () => {
-        const token = localStorage.getItem(ACCESS_TOKEN)
-        if(!token){
-            setIsAuthorized(false);
-            return;
-        }
-        const decoded = jwtDecode(token);
-        const tokenExpiration = decoded.exp;
-        const now = Date.now() / 1000;  //change to seconds rather than mileseconds
+  // Check for required role, if passed as a prop (optional)
+  if (requiredRole && user.role !== requiredRole) {
+    return <Navigate to="/unauthorized" replace />;  // Redirect to unauthorized page if role mismatch
+  }
 
-        if(tokenExpiration < now) {
-            await refreshToken();
-        } else {
-            setIsAuthorized(true);
-        }
-    };
+  return <>{children}</>;  // Render the protected content if the user is authorized
+};
 
-    if (isAuthorized === null){
-        return <div>Loading...</div>;
-    }
+export default ProtectedRoute
 
-    return isAuthorized ? children : <Navigate to="login" />;
-}
-
-export default ProtectedRoute;

@@ -1,1 +1,1 @@
-export {default as Assginments} from './AssignmentList';
+export {default as AssignmentList} from './AssignmentList';

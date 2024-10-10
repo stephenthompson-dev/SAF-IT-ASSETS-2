@@ -1,2 +1,3 @@
-export {default as Categories} from './CategoryList';
-export {default as CreateCategory} from './CreateCategory'
+export {default as CategoryList} from './CategoryList';
+export {default as CreateCategoryForm} from './CreateCategoryForm'
+export {default as EditCategoryForm} from './EditCategoryForm'

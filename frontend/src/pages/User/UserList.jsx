@@ -1,17 +1,17 @@
-import { useState, useEffect } from "react";
-import {useNavigate} from "react-router-dom";
-import api from '../../api';
+// src/components/Users/UserList.jsx
+
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Table from '../../components/UI/Table';
 import LoadingIndicator from '../../components/UI/LoadingIndicator';
-
+import { toast } from 'react-toastify';
+import api from '../../api'
 
 const Users = () => {
-  const [users, setUsers] = useState([]); // State to store user data
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
-  const navigate = useNavigate(); 
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // Define the columns for the table
   const columns = [
     { Header: "ID", accessor: "id" },
     { Header: "Username", accessor: "username" },
@@ -20,68 +20,56 @@ const Users = () => {
     { Header: "Email", accessor: "email" },
   ];
 
-  // Fetch users when the component mounts
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await api.get("/users/");
-        console.log(response.data);
-        setUsers(response.data); // Set the fetched user data
-        setLoading(false); // Set loading to false after fetching
-      } catch (err) {
-        setError(err.message); // Handle errors
+        setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        toast.error("Error fetching users.");
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchData(); // Call the fetch function
+    fetchData();
   }, []);
 
-  // Define event handlers for table actions
   const handleCreate = () => {
-    navigate("/create-user"); // Navigate to the create user form
+    navigate("/users/create");
   };
 
-  const handleUpdate = async (updatedUser) => {
-    try {
-      const response = await api.put(`/api/user/${updatedUser.id}/`, updatedUser); // Update user on the server
-      console.log("Updated user:", response.data);
+  const handleEdit = (selectedRow) => {
+    navigate(`/users/edit/${selectedRow.id}/`);
+  };
 
-      // Update the local user data
-      setUsers((prevUsers) => 
-        prevUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
-      );
-    } catch (error) {
-      console.error("Failed to update user:", error);
+  const handleDelete = async (selectedRow) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      try {
+        await api.delete(`/users/${selectedRow.id}/`);
+        setUsers(prevUsers => prevUsers.filter(user => user.id !== selectedRow.id));
+        toast.success("User deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        toast.error("Failed to delete user.");
+      }
     }
   };
 
-  const handleDetails = (row) => {
-    console.log("View details for:", row);
-  };
-
-  const handleDelete = (row) => {
-    console.log("Delete user:", row);
-  };
-
   if (loading) {
-    return <LoadingIndicator/>; // Show loading state
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>; // Show error message
+    return <LoadingIndicator />;
   }
 
   return (
-    <div>
+    <div className="p-4">
       <Table
         title="Users"
         columns={columns}
         data={users}
         onCreate={handleCreate}
-        onDetails={handleDetails}
+        onEdit={handleEdit}
         onDelete={handleDelete}
-        onUpdate={handleUpdate}
       />
     </div>
   );

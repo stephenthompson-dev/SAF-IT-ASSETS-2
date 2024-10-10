@@ -1,115 +1,71 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from 'react-router-dom';
-import api from '../../api';
-import Table from '../../components/UI/Table';
-import LoadingIndicator from '../../components/UI/LoadingIndicator';
-import DisplayMessage from '../../components/UI/DisplayMessage';
+// src/components/Categories/CategoryList.jsx
 
+import React, { useEffect, useState } from 'react';
+import Table from '../../components/UI/Table';  // Adjust the path if necessary
+import api from '../../api';  // Your Axios instance (session-based auth)
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
-const Categories = () => {
-    const [assets, setAssets] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const navigate = useNavigate();
+const CategoryList = () => {
+  const [categories, setCategories] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth(); // Access user info from AuthContext
 
-    //Message handling
-    const location = useLocation();
-    const [message, setMessage] = useState(null);
+  useEffect(() => {
+    // Fetch user information to determine admin status
 
+    // Fetch categories from the backend
+    api.get('/categories/')
+      .then(response => {
+        setCategories(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching categories:', error);
+        alert('Error fetching categories.');
+      });
+  }, []);
 
-    const columns = [
-        { Header: "ID", accessor: "id" },
-        { Header: "Category", accessor: "category_name" },
-    ];
+  // Define table columns
+  const columns = [
+    { Header: 'ID', accessor: 'id' },
+    { Header: 'Category Name', accessor: 'category_name' },
+  ];
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await api.get("/categories/");
-                console.log(response.data);
-                setAssets(response.data);
-                setLoading(false);
-            } catch (err) {
-                setError(err.message);
-                setLoading(false);
-            }
-        };
+  // Define action handlers
+  const handleCreate = () => {
+    navigate('/categories/create');
+  };
 
-        fetchData();
-    }, []);
+  const handleEdit = (row) => {
+    navigate(`/categories/edit/${row.id}`);
+  };
 
-    //#region message display
-    useEffect(() => {
-        if (location.state && location.state.message) {
-            setMessage({ text: location.state.message, type: location.state.type });
-        }
-    }, [location.state]); //Does checks on the current state to see if there is message to display
+  const handleDelete = (row) => {
+    api.delete(`/categories/${row.id}/`)
+      .then(() => {
+        setCategories(categories.filter(category => category.id !== row.id));
+        alert('Category deleted successfully!');
+      })
+      .catch(error => {
+        console.error('Error deleting category:', error);
+        alert('Error deleting category.');
+      });
+  };
 
-    const handleMessageClose = () => {
-        setMessage(null);
-        // Optionally navigate to clear the state
-        navigate('/categories');
-    };
-
-    //#endregion
-    
-    const handleCreate = () => {
-        navigate("/create-category");
-    };
-
-    const handleUpdate = async (updatedAsset) => {
-        try {
-            const response = await api.put(`/api/category/${updatedAsset.id}/`, updatedAsset);
-            console.log("Updated asset:", response.data);
-
-            setAssets((prevAssets) =>
-                prevAssets.map((asset) => (asset.id === updatedAsset.id ? updatedAsset : asset))
-            );
-        } catch (error) {
-            console.error("Failed to update asset:", error);
-        }
-    };
-
-    const handleDetails = (row) => {
-        console.log("View details for:", row);
-    };
-
-    const handleDelete = (row) => {
-        console.log("Delete asset:", row);
-    };
-
-    if (loading) {
-        return <LoadingIndicator />; // Show loading state
-    }
-
-    if (error) {
-        return <div>Error: {error}</div>; // Show error message
-    }
-
-    return (
-        <>
-          <div>
-            {message && (
-              <DisplayMessage
-                message={message.text}
-                type={message.type}
-                onClose={() => handleMessageClose()} // Optionally remove message after display
-              />
-            )}
-          </div>
-          <div>
-            <Table
-              title="Categories"
-              columns={columns}
-              data={assets}
-              onCreate={handleCreate}
-              onDetails={handleDetails}
-              onDelete={handleDelete}
-              onUpdate={handleUpdate}
-            />
-          </div>
-        </>
-      );
-      
+  return (
+    <div className="p-4">
+      <Table
+        columns={columns}
+        data={categories}
+        onCreate={user.role == "admin"? handleCreate : null}
+        title="Categories"
+        showCreateButton={user.role == 'admin'}
+        onEdit={user.role == 'admin' ? handleEdit : null}
+        onDelete={user.role == 'admin' ? handleDelete : null}
+      />
+    </div>
+  );
 };
-export default Categories;
+
+export default CategoryList;

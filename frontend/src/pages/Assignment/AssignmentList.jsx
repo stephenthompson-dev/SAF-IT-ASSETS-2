@@ -1,86 +1,103 @@
-import { useState, useEffect } from "react";
-import {useNavigate} from "react-router-dom";
-import api from '../../api';
-import Table from '../../components/UI/Table';
-import LoadingIndicator from '../../components/UI/LoadingIndicator';
+// ../../components/Assignments/AssignmentList.jsx
+import React, { useEffect, useState } from 'react';
+import Table from '../../components/UI/Table'; // Adjust the path if necessary
+import api from '../../api'; // Your Axios instance (session-based auth)
+import useAuth from '../../hooks/useAuth'; // Custom hook for auth context
+import { toast } from 'react-toastify';
 
 
-const Assignments = () => {
-  const [assignments, setAssignments] = useState([]); // State to store user data
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
-  const navigate = useNavigate(); 
+const AssignmentList = () => {
+  const [assignments, setAssignments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { user } = useAuth(); // Access user info from AuthContext
 
-  // Define the columns for the table
-  const columns = [
-    { Header: "ID", accessor: "id" },
-    { Header: "User", accessor: "user.first_name" },
-    { Header: "Asset", accessor: "asset.asset_name" },
-    { Header: "Return Date", accessor: "return_date" },
-  ];
+  const getAssignments = () => {
+    api.get('/assignments/')
+      .then(response => {
+        setAssignments(response.data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching assignments:', error);
+        setError('Error fetching assignments.');
+        setLoading(false);
+      });
+  }
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await api.get("/assignments/");
-        console.log(response.data);
-        setAssignments(response.data); // Set the fetched user data
-        setLoading(false); // Set loading to false after fetching
-      } catch (err) {
-        setError(err.message); // Handle errors
-        setLoading(false);
-      }
-    };
-
-    fetchData(); 
+    // Fetch assignments
+    getAssignments()
   }, []);
 
-  const handleCreate = () => {
-    navigate("/create-assignments");
-  };
+  const columns = [
+    { Header: 'ID', accessor: 'id' },
+    { Header: 'User', accessor: 'user' },
+    { Header: 'Asset', accessor: 'asset' },
+    { Header: 'Request', accessor: 'request' },
+    { Header: 'Assignment Date', accessor: 'assignment_date' },
+    { Header: 'Return Date', accessor: 'return_date' },
+    { Header: 'Returned', accessor: 'returned' },
+  ];
 
-  const handleUpdate = async (updatedUser) => {
-    try {
-      const response = await api.put(`/api/user/${updatedUser.id}/`, updatedUser); // Update user on the server
-      console.log("Updated user:", response.data);
-
-      setUsers((prevUsers) => 
-        prevUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
-      );
-    } catch (error) {
-      console.error("Failed to update user:", error);
-    }
-  };
-
-  const handleDetails = (row) => {
-    console.log("View details for:", row);
-  };
-
-  const handleDelete = (row) => {
-    console.log("Delete user:", row);
-  };
+  const tableData = assignments.map(assignment => ({
+    ...assignment,
+    returned: assignment.returned ? 'Yes' : 'No',
+    return_date: assignment.return_date || 'N/A',
+  }));
 
   if (loading) {
-    return <LoadingIndicator/>; // Show loading state
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>; // Show error message
+    return <div>{error}</div>;
   }
 
+  const handleReturn = async (row) => {
+    debugger
+    if (user.username == row.user){
+      toast.error("Another admin must confirm your returnal")
+      return
+    }
+
+    if (window.confirm('Are you sure you want to return this asset?')){
+      const updatedData = {
+        user: row.user,
+        asset: row.asset,
+        request: row.request,
+        assignment_date: row.assignment_date,
+        return_date: row.return_date,
+        returned: true,
+      };
+    
+      try 
+      {
+        const response = await api.put(`/assignments/${row.id}/`, updatedData);
+        await getAssignments();
+        toast.success('Asset returned')
+
+      }
+      catch (error)
+      {
+        toast.error("There was an error processing return seek admin help")
+        console.log(error)
+      }
+    } 
+  }; 
+
   return (
-    <div>
+    <div className="p-4">
       <Table
-        title="Assignmetns"
         columns={columns}
-        data={assignments}
-        onCreate={handleCreate}
-        onDetails={handleDetails}
-        onDelete={handleDelete}
-        onUpdate={handleUpdate}
+        data={tableData}
+        title="Assignments"
+        showCreateButton={false}  // No create button for assignments
+        onApprove={user.role == 'admin' ? handleReturn : null}
+        onApproveText='Return'
       />
     </div>
   );
 };
 
-export default Assignments;
+export default AssignmentList;
