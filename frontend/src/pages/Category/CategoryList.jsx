@@ -4,11 +4,13 @@ import React, { useEffect, useState } from 'react';
 import Table from '../../components/UI/Table';  // Adjust the path if necessary
 import api from '../../api';  // Your Axios instance (session-based auth)
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth(); // Access user info from AuthContext
 
   useEffect(() => {
     // Fetch user information to determine admin status
@@ -56,11 +58,11 @@ const CategoryList = () => {
       <Table
         columns={columns}
         data={categories}
-        onCreate={isAdmin ? handleCreate : null}
+        onCreate={user.role == "admin"? handleCreate : null}
         title="Categories"
-        showCreateButton={isAdmin}
-        onEdit={isAdmin ? handleEdit : null}
-        onDelete={isAdmin ? handleDelete : null}
+        showCreateButton={user.role == 'admin'}
+        onEdit={user.role == 'admin' ? handleEdit : null}
+        onDelete={user.role == 'admin' ? handleDelete : null}
       />
     </div>
   );

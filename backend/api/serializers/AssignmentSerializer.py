@@ -12,4 +12,4 @@ class AssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignment
         fields = ['id', 'user', 'asset', 'request', 'assignment_date', 'return_date', 'returned']
-        read_only_fields = fields  # Make all fields read-only
+        read_only_fields = ['id', 'user', 'asset', 'request', 'assignment_date', 'return_date'] # Make all fields read-only

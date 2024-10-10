@@ -86,7 +86,7 @@ CSRF_USE_SESSIONS = True  # Store the CSRF token in the session
 
 #CSRF_TRUSTED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',') # Removed for now, add back for render
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
+    os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
 ]
 
 # Session settings

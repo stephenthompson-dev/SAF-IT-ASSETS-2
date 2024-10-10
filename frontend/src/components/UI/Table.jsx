@@ -10,6 +10,7 @@ const Table = ({
   onEdit,
   onDelete,
   onApprove, // Add the onApprove prop
+  onApproveText = "Approve",
 }) => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -133,7 +134,7 @@ const Table = ({
                     closeModal();
                   }}
                 >
-                  Approve
+                  {onApproveText}
                 </button>
               )}
             </div>

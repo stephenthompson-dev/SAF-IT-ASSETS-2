@@ -72,10 +72,10 @@ const RequestList = () => {
       toast.error("you cannot approve your own request")
       return
     }
-    debugger
+
     if (window.confirm('Are you sure you want to approve this request?')) {
       const approved_by = user.id; // Assuming user object has an 'id' field
-
+      debugger
       const updatedData = {
         approved: true,
         approved_date: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD
