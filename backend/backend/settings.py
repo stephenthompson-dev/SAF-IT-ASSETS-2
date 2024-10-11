@@ -89,7 +89,7 @@ CSRF_TRUSTED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173'
 
 # Session settings
 SESSION_COOKIE_HTTPONLY = False
-SESSION_COOKIE_SECURE = False  # need to change for Render - should be True on prod
+SESSION_COOKIE_SECURE = True  # need to change for Render - should be True on prod
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 #SESSION_COOKIE_SAMESITE = 'Lax'  # add back for prod, removed for dev
 
